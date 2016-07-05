@@ -1,0 +1,2 @@
+# Infos zum Raspberry Pi
+- Bibliothek pymodbus
