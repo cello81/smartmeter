@@ -1,0 +1,40 @@
+<?php
+// src/AppBundle/Entity/Rawdata.php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="rawdata")
+ */
+class Rawdata
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $measuringtime;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $sitepower;
+
+    /* 
+     * @ORM\Column(type="integer")
+     */
+    private $netflow;
+
+    /**
+     * @ORM\Column(type="decimal", scale=2)
+     */
+    private $tariff;
+
+}

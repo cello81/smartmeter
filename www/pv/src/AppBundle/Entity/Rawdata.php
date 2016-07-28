@@ -1,0 +1,122 @@
+<?php
+// src/AppBundle/Entity/Rawdata.php
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="rawdata")
+ */
+class Rawdata
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $measuringtime;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $sitepower;
+
+    /* 
+     * @ORM\Column(type="integer")
+     */
+    private $netflow;
+
+    /**
+     * @ORM\Column(type="decimal", scale=2)
+     */
+    private $tariff;
+
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set measuringtime
+     *
+     * @param \DateTime $measuringtime
+     *
+     * @return Rawdata
+     */
+    public function setMeasuringtime($measuringtime)
+    {
+        $this->measuringtime = $measuringtime;
+
+        return $this;
+    }
+
+    /**
+     * Get measuringtime
+     *
+     * @return \DateTime
+     */
+    public function getMeasuringtime()
+    {
+        return $this->measuringtime;
+    }
+
+    /**
+     * Set sitepower
+     *
+     * @param integer $sitepower
+     *
+     * @return Rawdata
+     */
+    public function setSitepower($sitepower)
+    {
+        $this->sitepower = $sitepower;
+
+        return $this;
+    }
+
+    /**
+     * Get sitepower
+     *
+     * @return integer
+     */
+    public function getSitepower()
+    {
+        return $this->sitepower;
+    }
+
+    /**
+     * Set tariff
+     *
+     * @param string $tariff
+     *
+     * @return Rawdata
+     */
+    public function setTariff($tariff)
+    {
+        $this->tariff = $tariff;
+
+        return $this;
+    }
+
+    /**
+     * Get tariff
+     *
+     * @return string
+     */
+    public function getTariff()
+    {
+        return $this->tariff;
+    }
+}
