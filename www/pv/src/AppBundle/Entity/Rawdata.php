@@ -27,7 +27,7 @@ class Rawdata
      */
     private $sitepower;
 
-    /* 
+    /** 
      * @ORM\Column(type="integer")
      */
     private $netflow;
@@ -36,7 +36,6 @@ class Rawdata
      * @ORM\Column(type="decimal", scale=2)
      */
     private $tariff;
-
 
     /**
      * Get id
@@ -87,13 +86,38 @@ class Rawdata
     }
 
     /**
+     *
      * Get sitepower
      *
      * @return integer
      */
     public function getSitepower()
     {
-        return $this->sitepower;
+ 	return $this->sitepower;
+    }
+
+    /**
+     * Set Netflow
+     *
+     * @param integer $netflow
+     *
+     * @return Rawdata
+     */
+    public function setNetflow($netflow)
+    {
+        $this->netflow = $netflow;
+
+	return $this->netflow;
+    }
+
+    /**
+     * Get netflow
+     *
+     * @return integer
+     */
+    public function getNetflow()
+    {
+        return $this->netflow;
     }
 
     /**
