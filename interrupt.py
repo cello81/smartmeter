@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
 from multiprocessing import Process
 import urllib2
+import os
+from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 GPIO.setmode(GPIO.BCM)  
   
@@ -8,27 +10,48 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(3 , GPIO.IN, pull_up_down=GPIO.PUD_UP)  
 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+def ReadSitePower():
+   response = FroniusWR.read_input_registers(0,2)
+   sitePower = response.registers[0]
+   return sitePower
+
+
 def TransmitWorker():
    print "gruener Taster wurde gedrueckt"
-   print('Prozess ID:' , os.getpid())
-   urllib2.urlopen("http://localhost/pv/web/app_dev.php/insert/meterdata/36/-10/5.9")
+   tariff = 5.9
+   sitePower = ReadSitePower()
+   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower, 'Tariff', tariff)
+   urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
+   urlToSet += str(sitePower)
+   urlToSet += "/-10/"
+   urlToSet += str(tariff)
+#   print(urlToSet)
+   urllib2.urlopen(urlToSet)
    return 1
 
 def ConsumeWorker():
    print "gelber Taster wurde gedrueckt"
-   print('Prozess ID:', os.getpid())
-   urllib2.urlopen("http://localhost/pv/web/app_dev.php/insert/meterdata/0/10/5,9")
+   tariff = 21
+   sitePower = ReadSitePower()
+   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower, 'Tariff', tariff)
+   urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
+   urlToSet += str(sitePower)
+   urlToSet += "/10/"
+   urlToSet += str(tariff)
+   urllib2.urlopen(urlToSet)
    return 0
 
 def greenTransmitEnergy(channel):
-   TransmitProcess = Process(target=ConsumeWorker)
+   TransmitProcess = Process(target=TransmitWorker)
    TransmitProcess.start()
 
 def yellowConsumeEnergy(channel):
-   ConsumeProcess = Process(target=TransmitWorker)
+   ConsumeProcess = Process(target=ConsumeWorker)
    ConsumeProcess.start()
 
 if __name__ == '__main__':
+    FroniusWR = ModbusClient(host = '192.168.0.101', port=502)
+    
     GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=200)
     GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=200)
  
@@ -38,3 +61,4 @@ try:
 except KeyboardInterrupt:  
     GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
 GPIO.cleanup()           #
+
