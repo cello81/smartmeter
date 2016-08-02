@@ -2,6 +2,8 @@ import RPi.GPIO as GPIO
 from multiprocessing import Process
 import urllib2
 import os
+#import time
+import threading
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
 GPIO.setmode(GPIO.BCM)  
@@ -57,7 +59,11 @@ if __name__ == '__main__':
  
 try:
    print('Prozess ID:', os.getpid())
-   raw_input("\nWaiting for falling edge on port 3 and 15\nPress Enter to exit\n")
+#   while True:
+#       time.sleep(5)
+   dummy_event = threading.Event()
+   dummy_event.wait()
+#   raw_input("\nWaiting for falling edge on port 3 and 15\nPress Enter to exit\n")
 except KeyboardInterrupt:  
     GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
 GPIO.cleanup()           #
