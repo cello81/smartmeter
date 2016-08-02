@@ -1,0 +1,12 @@
+{# app/Resources/views/show/meterentries.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Einträge{% endblock %}
+
+{% block body %}
+    <h1>alle Einträge</h1>
+    {% for entry in meterdata_entries %}
+       <p>{{entry.id }}</p>
+       <p>{{entry.sitepower }} </p>
+    {% endfor %}
+{% endblock %}
