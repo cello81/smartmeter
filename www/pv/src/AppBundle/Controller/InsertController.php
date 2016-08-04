@@ -6,19 +6,41 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Entity\Rawdata;
+use DateTime;
 
 class InsertController extends Controller
 {
      /**
-     * @Route("/insert/meterdata/{sitepower}/{netflow}/{tariff}")
+     * @Route("/insert/meterdata/{sitepower}/{netflow}")
      */
-    public function meterdataAction($sitepower,$netflow,$tariff)
+    public function meterdataAction($sitepower,$netflow)
     {
         $rawdata = new Rawdata();
         $time = date("Y-m-d H:i:s");
-        $rawdata->setMeasuringtime(new \DateTime("now"));
+	$actualTime = new DateTime("now");
+//        $rawdata->setMeasuringtime(new \DateTime("now"));
+	$rawdata->setMeasuringtime($actualTime);
 	$rawdata->setSitepower($sitepower);
 	$rawdata->setNetflow($netflow);
+
+	if ($netflow < 0 ) // Rücklieferung
+	    $tariff = 5.9;
+	else
+	{
+	    $lowTariff = 13;
+	    $highTariff = 21;
+	    $weekday = $actualTime->format("N");
+	    if ($weekday == 6 || $weekday == 7)
+	       $tariff = $lowTariff;
+	    else
+	    {
+	        $hour = $actualTime->format("G");
+	        if( $hour >= 7 && $hour < 19 )
+	            $tariff = $highTariff;
+	        else
+		    $tariff = $lowTariff;
+	    }
+	}
 	$rawdata->setTariff($tariff);
 
 	$em = $this->getDoctrine()->getManager();

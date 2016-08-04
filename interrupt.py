@@ -4,7 +4,7 @@ from pymodbus.exceptions import ConnectionException
 from multiprocessing import Process
 import urllib2
 import os
-#import time
+import time
 import threading
 import sys
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
@@ -23,29 +23,24 @@ def ReadSitePower():
       sitePower = -1
    return sitePower
 
-
 def TransmitWorker():
    print "gruener Taster wurde gedrueckt"
-   tariff = 5.9
    sitePower = ReadSitePower()
-   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower, 'Tariff', tariff)
+   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
    urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
    urlToSet += str(sitePower)
-   urlToSet += "/-10/"
-   urlToSet += str(tariff)
+   urlToSet += "/-10"
 #   print(urlToSet)
    urllib2.urlopen(urlToSet)
    return 1
 
 def ConsumeWorker():
    print "gelber Taster wurde gedrueckt"
-   tariff = 21
    sitePower = ReadSitePower()
-   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower, 'Tariff', tariff)
+   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
    urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
    urlToSet += str(sitePower)
-   urlToSet += "/10/"
-   urlToSet += str(tariff)
+   urlToSet += "/10"
    urllib2.urlopen(urlToSet)
    return 0
 

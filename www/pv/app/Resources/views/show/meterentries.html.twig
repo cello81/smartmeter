@@ -5,8 +5,16 @@
 
 {% block body %}
     <h1>alle Einträge</h1>
-    {% for entry in meterdata_entries %}
-       <p>{{entry.id }}</p>
-       <p>{{entry.sitepower }} </p>
-    {% endfor %}
+        <table>
+           {% for entry in allmeterdata %}
+           <tr>
+               <td>ID: {{entry.id }}</td>
+               <td>Messung: {{entry.measuringtime|date('d.m.Y H:i:s') }}</td>
+               <td>Watt: {{ entry.sitepower }}</td> 
+               <td>Tarif: {{ entry.tariff }}</td>
+               <td>deltaT: {{ entry.timediff }}</td>
+               <td>P: {{ entry.wattnet|number_format(1,'.','') }}</td>
+           </tr>
+           {% endfor %}
+      </table>
 {% endblock %}

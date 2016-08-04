@@ -3,9 +3,9 @@
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Entity\Rawdata;
+use DateTime;
 
 class ShowController extends Controller
 {
@@ -16,32 +16,33 @@ class ShowController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 	$meterdataRepo = $em->getRepository('AppBundle:Rawdata');
-        $meterdataAll = $meterdataRepo->findAll();
 
-	$response = new Response();
+	$prevTime = new DateTime('2016-08-03');
 
-/*	$response->setContent('<html><body><h1>Hello world!</h1></body></html>');*/
-	$response->setStatusCode(Response::HTTP_OK);
+	$query = $meterdataRepo->createQueryBuilder('p')
+   		->orderBy('p.id', 'ASC')
+		->where('p.measuringtime > :date')
+		->setParameter('date', $prevTime)
+		->getQuery();
 
-	// set a HTTP response header
-	$response->headers->set('Content-Type', 'text/html');
+	$meterdataAll = $query->getResult();
 
-	// print the HTTP headers followed by the content
-//	$response->send();
+        $prevTime = new DateTime('NOW');
 
-	$htmltext = "<html><body><h1>Alle Einträge</h1><table>";
         foreach ($meterdataAll as $mde) {
-           $id = $mde->getId();
-           $time = $mde->getMeasuringtime();
-           $sitepower = $mde->getSitepower();
-           $netflow = $mde->getNetflow();
-           $tariff = $mde->getTariff();
-           $htmltext .= "<tr><td>ID: '.$id.'</td><td>Power: '.$sitepower.'</td><td>Netz: '.$netflow.'</td><td>Tarif: '.$tariff</td></tr>";
+            $time = $mde->getMeasuringtime();
+            $netflow = $mde->getNetflow();
+            $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
+
+	    if ($mde->getTimediff() != 0)
+                $mde->setwattNet($netflow/($mde->GetTimediff()/3600));
+            else
+                $mde->setwattNet(-1);
+	    $prevTime = $time;
 	}
-        $htmltext .= "</table></body></html>";
 
- 	$response->setContent($htmltext);
-
-	return $response;
+	return $this->render(
+		'show/meterentries.html.twig',
+		array('allmeterdata' => $meterdataAll));
     }
 }

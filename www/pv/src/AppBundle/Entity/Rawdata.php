@@ -37,6 +37,31 @@ class Rawdata
      */
     private $tariff;
 
+
+    private $timediff;
+    private $wattnet;
+    public function getTimediff()
+    {
+        return $this->timediff;
+    }
+
+    public function getWattnet()
+    {
+        return $this->wattnet;
+    }
+
+    public function setTimediff($timediff)
+    {
+        $this->timediff = $timediff;
+	return $this;
+    }
+
+    public function setWattnet($wattnet)
+    {
+         $this->wattnet = $wattnet;
+ 	 return $this;
+    }
+
     /**
      * Get id
      *
