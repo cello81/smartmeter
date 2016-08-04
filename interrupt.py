@@ -26,7 +26,7 @@ def ReadSitePower():
 def TransmitWorker():
    print "gruener Taster wurde gedrueckt"
    sitePower = ReadSitePower()
-   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
+#   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
    urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
    urlToSet += str(sitePower)
    urlToSet += "/-10"
@@ -37,7 +37,7 @@ def TransmitWorker():
 def ConsumeWorker():
    print "gelber Taster wurde gedrueckt"
    sitePower = ReadSitePower()
-   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
+#   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
    urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
    urlToSet += str(sitePower)
    urlToSet += "/10"
@@ -53,13 +53,13 @@ def yellowConsumeEnergy(channel):
    ConsumeProcess.start()
 
 if __name__ == '__main__':
-    FroniusWR = ModbusClient(host = '192.168.0.101', port=502)
+    FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
     
     GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=200)
     GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=200)
  
 try:
-   print('Prozess ID:', os.getpid())
+#   print('Prozess ID:', os.getpid())
    if len(sys.argv) == 1:
        raw_input("Press enter to exit\n")
    else:
