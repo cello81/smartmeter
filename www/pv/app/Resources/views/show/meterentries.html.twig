@@ -8,12 +8,12 @@
         <table>
            {% for entry in allmeterdata %}
            <tr>
-               <td>ID: {{entry.id }}</td>
-               <td>Messung: {{entry.measuringtime|date('d.m.Y H:i:s') }}</td>
-               <td>Watt: {{ entry.sitepower }}</td> 
-               <td>Tarif: {{ entry.tariff }}</td>
-               <td>deltaT: {{ entry.timediff }}</td>
-               <td>P: {{ entry.wattnet|number_format(1,'.','') }}</td>
+               <td>ID:</td><td> {{entry.id }}</td>
+               <td>Messung:</td><td>{{entry.measuringtime|date('d.m.Y H:i:s') }}</td>
+               <td>Watt:</td><td>{{ entry.sitepower }}</td> 
+               <td>Tarif:</td><td>{{ entry.tariff }}</td>
+               <td>deltaT:</td><td>{{ entry.timediff }}</td>
+               <td>P:</td><td>{{ entry.wattnet|number_format(1,'.','') }}</td>
            </tr>
            {% endfor %}
       </table>
