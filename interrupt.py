@@ -55,8 +55,8 @@ def yellowConsumeEnergy(channel):
 if __name__ == '__main__':
     FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
     
-    GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=200)
-    GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=200)
+    GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=50)
+    GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=50)
  
 try:
 #   print('Prozess ID:', os.getpid())

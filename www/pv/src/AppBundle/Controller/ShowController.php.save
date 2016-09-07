@@ -6,66 +6,45 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Entity\Rawdata;
 use DateTime;
-use DateInterval;
 
 class ShowController extends Controller
 {
 
      /**
-     * @Route("/show/meterdata/{datetoshowfrom}/{datetoshowto}/")
+     * @Route("/show/meterdata/{datetoshowfrom}/{datetoshowto}")
      */
 
-    public function ShowMeterdataAction($datetoshowfrom, $datetoshowto)
+    public function ShowMeterdataActionToday($datetoshowfrom, $datetoshowto=1)
     {
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
 
        $prevTime = new DateTime($datetoshowfrom);
-//echo $prevTime->format('Y-m-d H:i:s');
        if ($datetoshowto == 1)
        {
-           $dateTimeEnd = new DateTime($datetoshowfrom);
+           $dateTimeEnd = new DateTime($O
+datetoshowfrom);
+           $dateTimeEnd->add (new DateInterval('P1M'));  // + 1 Tag 
        }
        else
        {
            $dateTimeEnd = new DateTime($datetoshowto);
        }
-//echo $dateTimeEnd->format('Y-m-d H:i:s');
-
-       $dateTimeEnd->add(new DateInterval('P1D'));  // + 1 Tag 
-//echo $dateTimeEnd->format('Y-m-d H:i:s');
-
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
-                ->andWhere('p.measuringtime < :dateto')
+                ->where('p.measuringtime < :dateto')
                 ->setParameter('datefrom', $prevTime)
                 ->setParameter('dateto', $dateTimeEnd)
                 ->getQuery();
 
         $meterdataAll = $query->getResult();
-//        $transmitEnergyLowTariff = 0;
-        $transmitEnergyHighTariff = 0;
-//        $consumeEnergyLowTariff = 0;
-        $consumeEnergyHighTariff = 0;
-        
-        $consumePriceHighTariff = 0;
-        $transmitPriceHighTariff = 0;
+
+//        $prevTime = new DateTime('NOW');
 
         foreach ($meterdataAll as $mde) {
             $time = $mde->getMeasuringtime();
             $netflow = $mde->getNetflow();
-
-            if ($netflow < 0 )
-            {    // transmit
-                $transmitEnergyHighTariff += 10;
-                $transmitPriceHighTariff += $mde->getTariff() / 100;
-	    }
-            else
-            {   // consume
-                $consumeEnergyHighTariff += 10;
-                $consumePriceHighTariff += $mde->getTariff() / 100;
-	    }
             $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
 
             if ($mde->getTimediff() != 0)
@@ -74,10 +53,6 @@ class ShowController extends Controller
                 $mde->setwattNet(-1);
             $prevTime = $time;
         }
-echo "consumeEnergy:  $consumeEnergyHighTariff Wh \n";
-echo "consumePrice:   $consumePriceHighTariff Rp. \n";
-echo "transmitEnergy: $transmitEnergyHighTariff Wh \n";
-echo "transmitPrice:  $transmitPriceHighTariff Rp. \n";
 
         return $this->render(
                 'show/meterentries.html.twig',
@@ -86,19 +61,39 @@ echo "transmitPrice:  $transmitPriceHighTariff Rp. \n";
     }
 
      /**
-     * @Route("/show/meterdata/")
-     */
-
-    public function ShowMeterdataActionToday()
-    {
-	return ShowController::ShowMeterdataAction('today',1);
-    }
-
-     /**
      * @Route("/show/meterdata/all/")
      */
-    public function ShowMeterdataActionAll()
+    public function ShowMeterdataAction()
     {
-        return ShowController::ShowMeterdataAction('2016-08-04','NOW');
+        $em = $this->getDoctrine()->getManager();
+        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+        $prevTime = new DateTime('2016-08-04');
+
+        $query = $meterdataRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'ASC')
+                ->where('p.measuringtime > :date')
+                ->setParameter('date', $prevTime)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+        $prevTime = new DateTime('NOW');
+
+        foreach ($meterdataAll as $mde) {
+            $time = $mde->getMeasuringtime();
+            $netflow = $mde->getNetflow();
+            $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
+
+            if ($mde->getTimediff() != 0)
+                $mde->setwattNet($netflow/($mde->GetTimediff()/3600));
+            else
+                $mde->setwattNet(-1);
+            $prevTime = $time;
+        }
+
+        return $this->render(
+                'show/meterentries.html.twig',
+                array('allmeterdata' => $meterdataAll));
     }
 }
