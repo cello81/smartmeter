@@ -1,0 +1,5 @@
+{# app/Resources/views/show/diagram.html.twig #}
+{% for entry in allmeterdata %}
+{{entry.measuringtime|date('d m Y H:i:s')}}/{{ entry.wattnet|number_format(1,'.','')}}/
+{% endfor %}
+

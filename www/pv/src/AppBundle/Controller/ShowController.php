@@ -10,13 +10,8 @@ use DateInterval;
 
 class ShowController extends Controller
 {
-
-     /**
-     * @Route("/show/meterdata/{datetoshowfrom}/{datetoshowto}/")
-     */
-
-    public function ShowMeterdataAction($datetoshowfrom, $datetoshowto)
-    {
+     public function GetDataFromQuery($datetoshowfrom, $datetoshowto)
+     {
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
 
@@ -74,17 +69,45 @@ class ShowController extends Controller
                 $mde->setwattNet(-1);
             $prevTime = $time;
         }
-echo "consumeEnergy:  $consumeEnergyHighTariff Wh \n";
-echo "consumePrice:   $consumePriceHighTariff Rp. \n";
-echo "transmitEnergy: $transmitEnergyHighTariff Wh \n";
-echo "transmitPrice:  $transmitPriceHighTariff Rp. \n";
+	if (0)
+	{
+		echo "consumeEnergy:  $consumeEnergyHighTariff Wh \n";
+		echo "consumePrice:   $consumePriceHighTariff Rp. \n";
+		echo "transmitEnergy: $transmitEnergyHighTariff Wh \n";
+		echo "transmitPrice:  $transmitPriceHighTariff Rp. \n";
+	}
+        return $meterdataAll;
+     }
+
+     /**
+     * @Route("/show/meterdata/{datetoshowfrom}/{datetoshowto}/")
+     */
+
+    public function ShowMeterdataAction($datetoshowfrom, $datetoshowto)
+    {
+        $meterdataAll = ShowController::GetDataFromQuery($datetoshowfrom, $datetoshowto);
 
         return $this->render(
                 'show/meterentries.html.twig',
+//                'show/diagram.html.twig',
                 array('allmeterdata' => $meterdataAll));
+//                  array('allmeterdata' => json_encode($meterdataAll)));
 
     }
 
+     /**
+     * @Route("/show/diagram/")
+     */
+
+    public function ShowDiagramActionToday()
+    {
+	$meterdataAll = ShowController::GetDataFromQuery('today',1);
+	
+        return $this->render(
+                'show/diagram.html.twig',
+                array('allmeterdata' => $meterdataAll));
+//                  array('allmeterdata' => json_encode($meterdataAll)));
+    }
      /**
      * @Route("/show/meterdata/")
      */

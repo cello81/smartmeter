@@ -5,9 +5,15 @@
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
     </head>
     <body>
         {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+		<script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
+		<script src="{{ absolute_url(asset('https://code.highcharts.com/highcharts.js')) }}"></script>
+		<script src="{{ absolute_url(asset('https://code.highcharts.com/modules/exporting.js')) }}"></script>
+         	<script src="{{ absolute_url(asset('getData.js')) }}"></script>
+	{% endblock %}
     </body>
 </html>
