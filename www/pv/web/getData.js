@@ -1,9 +1,23 @@
-$(function () {
+$(document).ready(function () {
+   $.get('../../show/value/receive', function(receiveValue) {
+	$('#valueReceive').append(receiveValue);
+
+	   $.get('../../show/value/deliver', function(deliverValue) {
+		$('#valueDeliver').append(deliverValue);
+
+		   $.get('../../show/value/site', function(siteValue) {
+			$('#valueSite').append(siteValue);
+
+			   $.get('../../show/value/consume', function(consumeValue) {
+				$('#valueConsume').append(consumeValue);
+
     var x_values = [];
     var y_values = [];
     var switch1 = true;
 
-    $.get('http://192.168.1.37/pv/web/app_dev.php/show/diagram', function(data) {
+
+//    $.get('http://192.168.1.37/pv/web/app_dev.php/show/diagram', function(data) {
+    $.get('../../show/diagram', function(data) {
         data = data.split('/');
 
         for (var i in data)
@@ -74,16 +88,8 @@ $(function () {
        });
     });
 });
+});
+});
+});
+});
 
-function timeConverter(){
-  var a = new Date(UNIX_timestamp * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var hour = a.getHours();
-  var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
-  var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds();
-  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-  return time;
-}

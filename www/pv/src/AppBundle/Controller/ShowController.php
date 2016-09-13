@@ -16,19 +16,17 @@ class ShowController extends Controller
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
 
        $prevTime = new DateTime($datetoshowfrom);
-//echo $prevTime->format('Y-m-d H:i:s');
        if ($datetoshowto == 1)
        {
            $dateTimeEnd = new DateTime($datetoshowfrom);
+echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
        }
        else
        {
-           $dateTimeEnd = new DateTime($datetoshowto);
-       }
-//echo $dateTimeEnd->format('Y-m-d H:i:s');
 
-       $dateTimeEnd->add(new DateInterval('P1D'));  // + 1 Tag 
-//echo $dateTimeEnd->format('Y-m-d H:i:s');
+           $dateTimeEnd = new DateTime($datetoshowto);
+
+       }
 
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
@@ -89,10 +87,7 @@ class ShowController extends Controller
 
         return $this->render(
                 'show/meterentries.html.twig',
-//                'show/diagram.html.twig',
                 array('allmeterdata' => $meterdataAll));
-//                  array('allmeterdata' => json_encode($meterdataAll)));
-
     }
 
      /**
@@ -101,20 +96,34 @@ class ShowController extends Controller
 
     public function ShowDiagramActionToday()
     {
-	$meterdataAll = ShowController::GetDataFromQuery('today',1);
+	$meterdataAll = ShowController::GetDataFromQuery('today','NOW');
 	
         return $this->render(
                 'show/diagram.html.twig',
                 array('allmeterdata' => $meterdataAll));
-//                  array('allmeterdata' => json_encode($meterdataAll)));
     }
+
+     /**
+     * @Route("/show/diagram/{datetoshowfrom}/{datetoshowto}/")
+     */
+
+    public function ShowDiagramAction($datetoshowfrom, $datetoshowto)
+    {
+        $meterdataAll = ShowController::GetDataFromQuery($datetoshowfrom, $datetoshowto);
+
+        return $this->render(
+                'show/diagram.html.twig',
+                array('allmeterdata' => $meterdataAll));
+    }
+
+
      /**
      * @Route("/show/meterdata/")
      */
 
     public function ShowMeterdataActionToday()
     {
-	return ShowController::ShowMeterdataAction('today',1);
+	return ShowController::ShowMeterdataAction('today','NOW');
     }
 
      /**
@@ -124,4 +133,93 @@ class ShowController extends Controller
     {
         return ShowController::ShowMeterdataAction('2016-08-04','NOW');
     }
+
+     /**
+     * @Route("/show/cost/")
+     */
+    public function ShowTodayCost()
+    {
+
+
+	$value = 500;
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+    /**
+     * @Route("/show/cost/{costfrom}/{costto}")
+     */
+    public function ShowCostFromTo($costfrom, $costto)
+    {
+	$value = 3300;
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+     /**
+     * @Route("/show/value/receive/")
+     */
+    public function ShowReceive()
+    {
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(2)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$time1 = $meterdataAll[0]->getMeasuringtime()->getTimestamp();
+	$time2 = $meterdataAll[1]->getMeasuringtime()->getTimestamp();
+
+	$netflow2 = $meterdataAll[1]->getNetflow();
+
+	$value = $netflow2 / ( ($time1 - $time2) / 3600 );
+
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+     /**
+     * @Route("/show/value/deliver/")
+     */
+    public function ShowDeliver()
+    {
+	$value = 600;
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+
+     /**
+     * @Route("/show/value/site/")
+     */
+    public function ShowSite()
+    {
+	$value = 700;
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+
+     /**
+     * @Route("/show/value/consume/")
+     */
+    public function ShowConsume()
+    {
+	$value = 800;
+        return $this->render(
+                'show/value.html.twig',
+                array('value' => $value));
+    }
+
+
 }
