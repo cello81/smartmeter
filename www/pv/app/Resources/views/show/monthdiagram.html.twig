@@ -1,0 +1,5 @@
+{# app/Resources/views/show/monthdiagram.html.twig #}
+{% for entry in monthlyData %}
+{{entry.date}}/{{entry.recEnHiTar|number_format(1,'.','')}}/{{ entry.recPrHiTar|number_format(1,'.','')}}/
+{% endfor %}
+

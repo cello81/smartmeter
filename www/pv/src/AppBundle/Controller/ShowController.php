@@ -10,23 +10,110 @@ use DateInterval;
 
 class ShowController extends Controller
 {
+    public function GetValuesOfDay($date)
+    {
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+//       $startTime = new DateTime($date);
+	$startTime = $date;
+	$endTime = clone $startTime;
+	$endTime->add(new DateInterval('P1D')); 
+//echo $date->format('Y:m:d h:i:s'); 
+
+	$dailyData = array();
+	$dailyData['date'] = $date->format('d m Y');
+
+//echo $startTime->format('Y-m-d H:i:s');
+//echo $endTime->format('Y-m-d H:i:s');
+       $query = $meterdataRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'ASC')
+                ->where('p.measuringtime > :datefrom')
+                ->andWhere('p.measuringtime < :dateto')
+                ->setParameter('datefrom', $startTime)
+                ->setParameter('dateto', $endTime)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+//        $transmitEnergyLowTariff = 0;
+//        $consumeEnergyLowTariff = 0;
+        $transmitEnergyHighTariff = 0;
+  	$receiveEnergyHighTariff = 0;
+
+        $transmitPriceHighTariff = 0;
+        $receivePriceHighTariff = 0;
+
+	$consumeEnergy = 0;
+	$siteEnergy = 0;
+
+        foreach ($meterdataAll as $mde) {
+            $time = $mde->getMeasuringtime();
+            $netflow = $mde->getNetflow();
+
+            if ($netflow < 0)
+            {    // transmit
+                $transmitEnergyHighTariff += 10;
+                $transmitPriceHighTariff += $mde->getTariff() / 100;
+	    }
+            else
+            {   // receive
+                $receiveEnergyHighTariff += 10;
+                $receivePriceHighTariff += $mde->getTariff() / 100;
+	    }
+            $mde->setTimediff($time->getTimestamp() - $startTime->getTimestamp());
+
+            $startTime = $time;
+        }
+	$dailyData['recEnHiTar'] = $receiveEnergyHighTariff;
+	$dailyData['recPrHiTar'] = $receivePriceHighTariff;
+	$dailyData['traEnHiTar'] = $transmitEnergyHighTariff;
+	$dailyData['traPrHiTar'] = $transmitPriceHighTariff;
+	return $dailyData;
+     }
+
+     /**
+     * @Route("/show/day/{date}/")
+     */
+     public function GetDailyInformation($date)
+     {
+	$dailyData = ShowController::GetValuesOfDay($date);
+        return $this->render(
+                'show/daily.html.twig',
+                array('dailyData' => $dailyData));
+     }
+
+	/**
+    	 * @Route("/show/monthdays/{date}/")
+     	*/
+	public function GetDailyDataByMonth($date)
+	{
+		$month = new DateTime($date);
+		$interval = new DateInterval('P1D');
+//		$monthlyData = array();
+		$monthvalue = $month->format('m');
+		$daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthvalue, $month->format('Y'));
+		for ($i = 1; $i <= $daysInMonth; $i++ )
+		{
+//			echo $month->format('Y:m:d h:i:s'); 
+//			echo "<br />";
+			$monthlyData[$i] = ShowController::GetValuesOfDay($month);
+			$month->add($interval);
+		}
+
+	        return $this->render(
+        	        'show/monthdiagram.html.twig',
+                	array('monthlyData' => $monthlyData));
+	}
+
+
+
      public function GetDataFromQuery($datetoshowfrom, $datetoshowto)
      {
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
 
        $prevTime = new DateTime($datetoshowfrom);
-       if ($datetoshowto == 1)
-       {
-           $dateTimeEnd = new DateTime($datetoshowfrom);
-echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
-       }
-       else
-       {
-
-           $dateTimeEnd = new DateTime($datetoshowto);
-
-       }
+       $dateTimeEnd = new DateTime($datetoshowto);
 
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
@@ -178,8 +265,10 @@ echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
 	$time2 = $meterdataAll[1]->getMeasuringtime()->getTimestamp();
 
 	$netflow2 = $meterdataAll[1]->getNetflow();
-
-	$value = $netflow2 / ( ($time1 - $time2) / 3600 );
+	if ($netflow2 > 0)
+		$value = $netflow2 / ( ($time1 - $time2) / 3600 );
+	else
+		$value = 0;
 
         return $this->render(
                 'show/value.html.twig',
@@ -191,7 +280,26 @@ echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
      */
     public function ShowDeliver()
     {
-	$value = 600;
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(2)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$time1 = $meterdataAll[0]->getMeasuringtime()->getTimestamp();
+	$time2 = $meterdataAll[1]->getMeasuringtime()->getTimestamp();
+
+	$netflow2 = $meterdataAll[1]->getNetflow();
+	if ($netflow2 < 0)
+		$value = -1 * ( $netflow2 / ( ($time1 - $time2) / 3600 ) ); 
+	else
+		$value = 0;
+
         return $this->render(
                 'show/value.html.twig',
                 array('value' => $value));
@@ -203,7 +311,19 @@ echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
      */
     public function ShowSite()
     {
-	$value = 700;
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(1)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$value = $meterdataAll[0]->GetSitePower();
+
         return $this->render(
                 'show/value.html.twig',
                 array('value' => $value));
@@ -215,7 +335,35 @@ echo "SHOULD never get here! war 1:" .  $dateTimeEnd->format('Y-m-d H:i:s');
      */
     public function ShowConsume()
     {
-	$value = 800;
+
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(2)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$time1 = $meterdataAll[0]->getMeasuringtime()->getTimestamp();
+	$time2 = $meterdataAll[1]->getMeasuringtime()->getTimestamp();
+
+	$netflow2 = $meterdataAll[1]->getNetflow();
+	if ($netflow2 < 0)
+	{
+		$wattDeliver = -1 * ( $netflow2 / ( ($time1 - $time2) / 3600 ) ); 
+		$value = $meterdataAll[1]->getSitePower() - $wattDeliver;
+	}
+	else
+	{
+		$wattReceive = $netflow2 / ( ($time1 - $time2) / 3600 ); 
+		if ($meterdataAll[1]->getSitePower() == -1 )
+			$value = $wattReceive;
+		else
+			$value = $meterdataAll[1]->getSitePower() + $wattReceive;
+	}
         return $this->render(
                 'show/value.html.twig',
                 array('value' => $value));

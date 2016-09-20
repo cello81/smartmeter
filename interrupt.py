@@ -24,21 +24,16 @@ def ReadSitePower():
    return sitePower
 
 def TransmitWorker():
-   print "gruener Taster wurde gedrueckt"
    sitePower = ReadSitePower()
-#   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
-   urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
+   urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
    urlToSet += "/-10"
-#   print(urlToSet)
    urllib2.urlopen(urlToSet)
    return 1
 
 def ConsumeWorker():
-   print "gelber Taster wurde gedrueckt"
    sitePower = ReadSitePower()
-#   print('Prozess ID:' , os.getpid(),'SitePower:', sitePower)
-   urlToSet = "http://localhost/pv/web/app_dev.php/insert/meterdata/"
+   urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
    urlToSet += "/10"
    urllib2.urlopen(urlToSet)
@@ -55,9 +50,9 @@ def yellowConsumeEnergy(channel):
 if __name__ == '__main__':
     FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
     
-    GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=50)
-    GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=50)
- 
+    GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=1000)
+    GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=1000)
+    # bounce time 50ms ended in several failures...
 try:
 #   print('Prozess ID:', os.getpid())
    if len(sys.argv) == 1:

@@ -18,13 +18,26 @@ class InsertController extends Controller
         $rawdata = new Rawdata();
         $time = date("Y-m-d H:i:s");
 	$actualTime = new DateTime("now");
-//        $rawdata->setMeasuringtime(new \DateTime("now"));
 	$rawdata->setMeasuringtime($actualTime);
 	$rawdata->setSitepower($sitepower);
 	$rawdata->setNetflow($netflow);
 
 	if ($netflow < 0 ) // Rücklieferung
-	    $tariff = 5.9;
+	{
+	    $lowTariffDeliver = 5.9;
+	    $highTariffDeliver = 5.9;
+	    $weekday = $actualTime->format("N");
+	    if ($weekday == 6 || $weekday == 7)
+	       $tariff = $lowTariffDeliver;
+	    else
+	    {
+	        $hour = $actualTime->format("G");
+	        if( $hour >= 7 && $hour < 19 )
+	            $tariff = $highTariffDeliver;
+	        else
+		    $tariff = $lowTariffDeliver;
+	    }
+	}
 	else
 	{
 	    $lowTariff = 13;
