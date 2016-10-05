@@ -1,0 +1,78 @@
+{# app/Resources/views/pv/dashboard.html.twig #}
+{% extends 'pvbase.html.twig' %}
+
+{% block title %}Monatsübersicht{% endblock %}
+
+{% block body %}
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+{% block javascripts %}
+    <script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
+    <script src="{{ absolute_url(asset('https://code.highcharts.com/highcharts.js')) }}"></script>
+    <script src="{{ absolute_url(asset('https://code.highcharts.com/modules/exporting.js')) }}"></script>
+{% endblock %}
+
+<script type="text/javascript" >
+ $(function () {
+    var x_values = [];
+    var y_values_receive = [];
+    var y_values_deliver = [];
+{#    var y_values_site = []; #}
+
+    {% for entry in monthData %}
+        var ts = '{{entry.date}}';
+        x_values.push(ts);
+        y_values_receive.push( {{entry.recEnHiTar|number_format(1,'.','') }} );
+        y_values_deliver.push( {{entry.traEnHiTar|number_format(1,'.','') }} );
+{#        y_values_site.push( {{entry.sitepower|number_format(1,'.','') }} ); #}
+    {% endfor %}
+
+    $('#container').highcharts({
+
+           chart: {
+               type: 'column',
+           },
+           title: {
+               text: 'Monatsübersicht'
+           },
+           subtitle: {
+               text: 'Gäbrisstrasse 43a'
+           },
+           xAxis : {
+               title : {
+                   text : 'Datum'
+               },
+               categories : x_values,
+               type: 'datetime'
+           },
+           yAxis: {
+               title: {
+                   text: 'Leistung [Watt]'
+               },
+               min: 0
+           },
+
+           plotOptions: {
+               spline: {
+                   marker: {
+                       enabled: true
+                   }
+               }
+           },
+          series: [{
+               name: 'Bezug Netz',
+               data: y_values_receive
+           }, {
+               name: 'Rückspeisung Netz',
+               data: y_values_deliver
+           }{#, {
+               name: 'Produktion',
+               data: y_values_site
+        }#}]
+    });
+});
+</script>
+
+{% endblock %}
+

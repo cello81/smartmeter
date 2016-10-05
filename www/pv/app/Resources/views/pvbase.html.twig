@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}Basis für PV Bischof{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+
+    </head>
+    <body>
+	<div id="sidebar">
+        {% block sidebar %}
+		<ul id="navigation">
+	            <li>
+        	        <a href="{{ path('_dashboard') }}">Dashboard</a>
+	            </li>
+        	    <li>
+	                <a href="{{ path('_month') }}">Monatsübersicht</a>
+	            </li>
+	{#            <li>
+	                <a href="{{ path('_year') }}Jahresübersicht</a>
+	            </li>
+	  #}      </ul>
+        {% endblock %}
+	</div>
+
+        <div id="content">
+            {% block body %}{% endblock %}
+        </div>
+
+  </body>
