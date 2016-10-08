@@ -39,15 +39,22 @@ class Rawdata
 
 
     private $timediff;
-    private $wattnet;
+    private $wattReceive;
+    private $wattDeliver;
+
     public function getTimediff()
     {
         return $this->timediff;
     }
 
-    public function getWattnet()
+    public function getWattReceive()
     {
-        return $this->wattnet;
+        return $this->wattReceive;
+    }
+
+    public function getWattDeliver()
+    {
+        return $this->wattDeliver;
     }
 
     public function setTimediff($timediff)
@@ -56,9 +63,15 @@ class Rawdata
 	return $this;
     }
 
-    public function setWattnet($wattnet)
+    public function setWattReceive($wattnet)
     {
-         $this->wattnet = $wattnet;
+         $this->wattReceive = $wattnet;
+ 	 return $this;
+    }
+
+    public function setWattDeliver($wattnet)
+    {
+         $this->wattDeliver = $wattnet;
  	 return $this;
     }
 

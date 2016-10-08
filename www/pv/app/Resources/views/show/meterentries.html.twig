@@ -9,14 +9,10 @@
 <p>Aktueller Lieferung: <span id="valueDeliver"></span>Watt</p>
 <p>Aktueller Sitepower: <span id="valueSite"></span>Watt</p>
 <p>Aktueller Verbrauch: <span id="valueConsume"></span>Watt</p>
-{#<p id="valueDeliver">Aktuelle Lieferung [Watt]: </p>
-<p id="valueSite">Aktuell Sitepower [Watt]: </p>
-<p id="valueConsume">Aktueller Verbrauch [Watt]: </p>
-#}
+
 <div id="chart" style="height: 400px; margin: 0 auto"></div>   
 <div id="monthchart" style="height: 400px; margin: 0 auto"></div>   
 
-{#
     <h1>alle Einträge</h1>
         <table>
            {% for entry in allmeterdata %}
@@ -30,6 +26,5 @@
            </tr>
            {% endfor %}
       </table>
-#}
 {% endblock %}
 

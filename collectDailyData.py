@@ -14,14 +14,25 @@ f = open('collectdailylogfile.txt', 'w') #create a file using the given input
 
 try:
    FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
-   response = FroniusWR.read_input_registers(0,2)
-   sitePower = response.registers[0]
+   response = FroniusWR.read_input_registers(502,4) # parameters: register address, number of regs to read
+   sitePower = response.registers[0]                # interpret only first uint16... not really good!
 except ConnectionException:
-    sitePower = -1
+   sitePower = 0
 
+date = datetime.today()
 urlToSet = "http://localhost/pv/web/app.php/insert/dailydata/"
+urlToSet += str(date.year)
+urlToSet += "-"
+urlToSet += str(date.month)
+urlToSet += "-"
+urlToSet += str(date.day)
+urlToSet += "/"
 urlToSet += str(sitePower)
+
+f.write('Call: \"' + urlToSet + '\" ...')
+f.flush()
+
 urllib2.urlopen(urlToSet)
 
-f.write('Called:' + urlToSet + 'at: %s\n'  %datetime.now())
+f.write('\nSuccessful! URL was:' + urlToSet + 'at: %s\n'  %datetime.now())
 f.close()

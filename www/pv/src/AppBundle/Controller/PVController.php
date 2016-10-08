@@ -10,130 +10,8 @@ use DateInterval;
 
 class PVController extends Controller
 {
-    public function GetValuesOfDay($date)
-    {
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'start';
-       $em = $this->getDoctrine()->getManager();
-       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'getrepo';
-
-//       $startTime = new DateTime($date);
-	$startTime = $date;
-	$endTime = clone $startTime;
-	$endTime->add(new DateInterval('P1D')); 
-//echo $date->format('Y:m:d h:i:s'); 
-
-	$dailyData = array();
-	$dailyData['date'] = $date->format('d m Y');
-
-//echo $startTime->format('Y-m-d H:i:s');
-//echo $endTime->format('Y-m-d H:i:s');
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'startquery';
-// query id von datum von und datum bis, mit maxentry = 1
-       $query = $meterdataRepo->createQueryBuilder('p')
-                ->orderBy('p.id', 'ASC')
-                ->where('p.measuringtime > :datefrom')
-                ->andWhere('p.measuringtime < :dateto')
-                ->setParameter('datefrom', $startTime)
-                ->setParameter('dateto', $endTime)
-                ->getQuery();
-
-        $meterdataAll = $query->getResult();
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'gotquery';
-//        $transmitEnergyLowTariff = 0;
-//        $consumeEnergyLowTariff = 0;
-        $transmitEnergyHighTariff = 0;
-  	$receiveEnergyHighTariff = 0;
-
-//        $transmitPriceHighTariff = 0;
-//        $receivePriceHighTariff = 0;
-
-//	$consumeEnergy = 0;
-//	$siteEnergy = 0;
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'startforeach';
-
-        foreach ($meterdataAll as $mde) {
- //           $time = $mde->getMeasuringtime();
-//            $netflow = $mde->getNetflow();
-
-//            if ($netflow < 0 )
-            {    // transmit
-//                $transmitEnergyHighTariff += 10;
-//                $transmitPriceHighTariff += $mde->getTariff() / 100;
-	    }
-//            else
-            {   // receive
-//                $receiveEnergyHighTariff += 10;
-//                $receivePriceHighTariff += $mde->getTariff() / 100;
-	    }
-//            $mde->setTimediff($time->getTimestamp() - $startTime->getTimestamp());
-
- //           $startTime = $time;
-        }
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'endforeach';
-
-	$dailyData['recEnHiTar'] = $receiveEnergyHighTariff;
-//	$dailyData['recPrHiTar'] = $receivePriceHighTariff;
-	$dailyData['traEnHiTar'] = $transmitEnergyHighTariff;
-//	$dailyData['traPrHiTar'] = $transmitPriceHighTariff;
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'end<br />';
-	return $dailyData;
-     }
-
-     /**
-     * @Route("/show/day/{date}/")
-     */
-     public function GetDailyInformation($date)
-     {
-	$dailyData = ShowController::GetValuesOfDay($date);
-        return $this->render(
-                'show/daily.html.twig',
-                array('dailyData' => $dailyData));
-     }
-
-	/**
-    	 * @Route("/show/monthdays/{date}/")
-     	*/
-	public function GetDailyDataByMonth($date)
-	{
-		$month = new DateTime($date);
-		$interval = new DateInterval('P1D');
-//		$monthlyData = array();
-		$monthvalue = $month->format('m');
-		$daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthvalue, $month->format('Y'));
-		for ($i = 1; $i <= $daysInMonth; $i++ )
-		{
-//			echo $month->format('Y:m:d h:i:s'); 
-//			echo "<br />";
-			$monthlyData[$i] = PVController::GetValuesOfDay($month);
-			$month->add($interval);
-		}
-//$logdate = new DateTime('now');
-//echo $logdate->format('Y:m:d h:i:s'); 
-//echo 'mannooo';
-
-	        return $this->render(
-        	        'pv/month.html.twig',
-                	array('monthData' => $monthlyData));
-	}
-
-
-     // returns all receive events
-     public function GetReceiveEvents($datetoshowfrom, $datetoshowto)
+     // returns all events 
+     public function GetEvents($datetoshowfrom, $datetoshowto)
      {
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
@@ -145,7 +23,7 @@ class PVController extends Controller
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
                 ->andWhere('p.measuringtime < :dateto')
-                ->andWhere('p.netflow > 0')
+  //              ->andWhere('p.netflow > 0')
                 ->setParameter('datefrom', $prevTime)
                 ->setParameter('dateto', $dateTimeEnd)
                 ->getQuery();
@@ -159,10 +37,23 @@ class PVController extends Controller
             $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
 
             if ($mde->getTimediff() != 0)
-                $mde->setwattNet($netflow/($mde->GetTimediff()/3600));
+	    {
+		if( $netflow > 0 )
+		{
+	                $mde->setWattReceive($netflow/($mde->GetTimediff()/3600));
+	                $mde->setWattDeliver(0);
+		}
+		else
+		{
+	                $mde->setWattDeliver(-1*$netflow/($mde->GetTimediff()/3600));
+	                $mde->setWattReceive(0);
+		}
+	    }
             else
-                $mde->setwattNet(-1);
-
+            {
+	        $mde->setwattReceive(-1);
+                $mde->setwattDeliver(-1);
+	    }
             $prevTime = $time;
         }
         return $meterdataAll;
@@ -212,33 +103,21 @@ class PVController extends Controller
 
     public function PVDataAction($datetoshowfrom, $datetoshowto)
     {
-        $receiveEvents = PVController::GetReceiveEvents($datetoshowfrom, $datetoshowto);
-	$deliverEvents = PVController::GetDeliverEvents($datetoshowfrom, $datetoshowto);
+//        $receiveEvents = PVController::GetReceiveEvents($datetoshowfrom, $datetoshowto);
+        $events = PVController::GetEvents($datetoshowfrom, $datetoshowto);
+//	$deliverEvents = PVController::GetDeliverEvents($datetoshowfrom, $datetoshowto);
 	$pvdata = array();
 
-	$pvdata['receiveEvents'] = $receiveEvents;
-	$pvdata['deliverEvents'] = $deliverEvents;
-	$pvdata['consume'] = PVController::ShowConsume();
-	$pvdata['deliver'] = PVController::ShowDeliver();
-	$pvdata['site'] = PVController::ShowSite();
-	$pvdata['receive'] = PVController::ShowReceive();
+	$pvdata['events'] = $events;
+//	$pvdata['deliverEvents'] = $deliverEvents;
+	$pvdata['consume']       = PVController::ShowConsume();
+	$pvdata['deliver']       = PVController::ShowDeliver();
+	$pvdata['site']          = PVController::ShowSite();
+	$pvdata['receive']       = PVController::ShowReceive();
 
         return $this->render(
                 'pv/dashboard.html.twig',
                 array('pvdata' => $pvdata));
-    }
-
-     /**
-     * @Route("/show/diagram/")
-     */
-
-    public function ShowDiagramActionToday()
-    {
-	$meterdataAll = ShowController::GetDataFromQuery('today','NOW');
-	
-        return $this->render(
-                'show/diagram.html.twig',
-                array('allmeterdata' => $meterdataAll));
     }
 
      /**
@@ -250,21 +129,51 @@ class PVController extends Controller
 	return PVController::PVDataAction('today','NOW');
     }
 
-     /**
-     * @Route("/pv/month", name="_month")
-     */
 
-    public function ShowPVMonth()
+
+     // returns all data from one month (format of month 2016-10)
+     public function GetMonthData($month)
+     {
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Dailydata');
+
+       $startTime = new DateTime($month);
+       $endTime   = clone $startTime;
+       $endTime->add(new DateInterval('P1M'));  // + 1 Monat
+
+       $query = $meterdataRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'ASC')
+                ->where('p.date > :datefrom')
+                ->andWhere('p.date < :dateto')
+                ->setParameter('datefrom', $startTime)
+                ->setParameter('dateto', $endTime)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+        return $meterdataAll;
+     }
+
+     /**
+     * @Route("/pv/month/{month}")
+     */
+    public function PVMonthAction($month)
     {
-	return PVController::GetDailyDataByMonth("2016-10");
+	$pvdata = array();
+
+	$monthdata = PVController::GetMonthData($month);
+
+        return $this->render(
+                'pv/month.html.twig',
+                array('monthdata' => $monthdata));
     }
 
      /**
-     * @Route("/show/meterdata/all/")
+     * @Route("/pv/month", name="_month")
      */
-    public function ShowMeterdataActionAll()
+    public function ShowPVMonth()
     {
-        return ShowController::ShowMeterdataAction('2016-08-04','NOW');
+	return PVController::PVMonthAction("2016-10");
     }
 
      /**

@@ -1,56 +1,44 @@
 $(document).ready(function () {
-   $.get('../../show/value/receive', function(receiveValue) {
-	$('#valueReceive').append(receiveValue);
-
-	   $.get('../../show/value/deliver', function(deliverValue) {
-		$('#valueDeliver').append(deliverValue);
-
-		   $.get('../../show/value/site', function(siteValue) {
-			$('#valueSite').append(siteValue);
-
-			   $.get('../../show/value/consume', function(consumeValue) {
-				$('#valueConsume').append(consumeValue);
-
     var x_values = [];
     var y_values = [];
-    var switch1 = true;
+    var y2_values = [];
+    var iterator = 1;
 
-
-//    $.get('http://192.168.1.37/pv/web/app_dev.php/show/diagram', function(data) {
-    $.get('../../show/diagram', function(data) {
+    $.get('../../show/monthdays/2016-09', function(data) {
         data = data.split('/');
-
         for (var i in data)
         {
-            if (switch1 == true)
+            if (iterator == 1)
             {
                 var ts = data[i];
                 x_values.push(ts);
-                switch1 = false;
+                iterator++;
             }
-            else
+            else if (iterator == 2)
             {
                 y_values.push(parseFloat(data[i]));
-                switch1 = true;
-            }
- 
-        }
+                iterator++;
+            } else if (iterator == 3)
+            {
+		y2_values.push(parseFloat(data[i]));
+		iterator = 1;
+	   }	
+         }
         x_values.pop();
 
-        $('#chart').highcharts({
+        $('#monthchart').highcharts({
            chart: {
-               type: 'spline',
-               zoomType: 'x'
+               type: 'column'
            },
            title: {
-               text: 'Tagesverlauf'
+               text: 'Monatsübersicht'
            },
            subtitle: {
                text: 'Gäbrisstrasse 43a'
            },
            xAxis : {
                title : {
-                   text : 'Time'
+                   text : 'Datum'
                },
                categories : x_values,
                type: 'datetime'
@@ -71,14 +59,12 @@ $(document).ready(function () {
            },
 
            series: [{
-               name: 'Bezug Netz',
+               name: 'Bezug [Wh]',
                data: y_values
-//           }
-//          , {
-//               name: 'Rückspeisung Netz',
-//               data: [
-//                [Date.UTC(1970, 9, 29), 0],
-//               ]
+           }
+          , {
+               name: 'Kosten [Rp.]',
+               data: y2_values
 //           }, {
 //               name: 'Produktion',
 //                [Date.UTC(1970, 10, 25), 0],
@@ -87,9 +73,5 @@ $(document).ready(function () {
            }]
        });
     });
-});
-});
-});
-});
 });
 

@@ -12,8 +12,14 @@ class ShowController extends Controller
 {
     public function GetValuesOfDay($date)
     {
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'start';
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'getrepo';
 
 //       $startTime = new DateTime($date);
 	$startTime = $date;
@@ -26,6 +32,10 @@ class ShowController extends Controller
 
 //echo $startTime->format('Y-m-d H:i:s');
 //echo $endTime->format('Y-m-d H:i:s');
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'startquery';
+// query id von datum von und datum bis, mit maxentry = 1
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
@@ -35,6 +45,9 @@ class ShowController extends Controller
                 ->getQuery();
 
         $meterdataAll = $query->getResult();
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'gotquery';
 //        $transmitEnergyLowTariff = 0;
 //        $consumeEnergyLowTariff = 0;
         $transmitEnergyHighTariff = 0;
@@ -45,12 +58,15 @@ class ShowController extends Controller
 
 	$consumeEnergy = 0;
 	$siteEnergy = 0;
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'startforeach';
 
         foreach ($meterdataAll as $mde) {
             $time = $mde->getMeasuringtime();
             $netflow = $mde->getNetflow();
 
-            if ($netflow < 0)
+            if ($netflow < -1)
             {    // transmit
                 $transmitEnergyHighTariff += 10;
                 $transmitPriceHighTariff += $mde->getTariff() / 100;
@@ -64,10 +80,17 @@ class ShowController extends Controller
 
             $startTime = $time;
         }
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'endforeach';
+
 	$dailyData['recEnHiTar'] = $receiveEnergyHighTariff;
 	$dailyData['recPrHiTar'] = $receivePriceHighTariff;
 	$dailyData['traEnHiTar'] = $transmitEnergyHighTariff;
 	$dailyData['traPrHiTar'] = $transmitPriceHighTariff;
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'end<br />';
 	return $dailyData;
      }
 
@@ -99,6 +122,9 @@ class ShowController extends Controller
 			$monthlyData[$i] = ShowController::GetValuesOfDay($month);
 			$month->add($interval);
 		}
+//$logdate = new DateTime('now');
+//echo $logdate->format('Y:m:d h:i:s'); 
+//echo 'mannooo';
 
 	        return $this->render(
         	        'show/monthdiagram.html.twig',
@@ -106,7 +132,7 @@ class ShowController extends Controller
 	}
 
 
-
+     // returns all consume events
      public function GetDataFromQuery($datetoshowfrom, $datetoshowto)
      {
        $em = $this->getDoctrine()->getManager();
@@ -119,24 +145,25 @@ class ShowController extends Controller
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
                 ->andWhere('p.measuringtime < :dateto')
+                ->andWhere('p.netflow > 0')
                 ->setParameter('datefrom', $prevTime)
                 ->setParameter('dateto', $dateTimeEnd)
                 ->getQuery();
 
         $meterdataAll = $query->getResult();
 //        $transmitEnergyLowTariff = 0;
-        $transmitEnergyHighTariff = 0;
+//        $transmitEnergyHighTariff = 0;
 //        $consumeEnergyLowTariff = 0;
-        $consumeEnergyHighTariff = 0;
+//        $consumeEnergyHighTariff = 0;
         
-        $consumePriceHighTariff = 0;
-        $transmitPriceHighTariff = 0;
+//        $consumePriceHighTariff = 0;
+//        $transmitPriceHighTariff = 0;
 
         foreach ($meterdataAll as $mde) {
             $time = $mde->getMeasuringtime();
             $netflow = $mde->getNetflow();
 
-            if ($netflow < 0 )
+/*            if ($netflow < 0 )
             {    // transmit
                 $transmitEnergyHighTariff += 10;
                 $transmitPriceHighTariff += $mde->getTariff() / 100;
@@ -146,6 +173,7 @@ class ShowController extends Controller
                 $consumeEnergyHighTariff += 10;
                 $consumePriceHighTariff += $mde->getTariff() / 100;
 	    }
+*/
             $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
 
             if ($mde->getTimediff() != 0)
@@ -154,13 +182,6 @@ class ShowController extends Controller
                 $mde->setwattNet(-1);
             $prevTime = $time;
         }
-	if (0)
-	{
-		echo "consumeEnergy:  $consumeEnergyHighTariff Wh \n";
-		echo "consumePrice:   $consumePriceHighTariff Rp. \n";
-		echo "transmitEnergy: $transmitEnergyHighTariff Wh \n";
-		echo "transmitPrice:  $transmitPriceHighTariff Rp. \n";
-	}
         return $meterdataAll;
      }
 

@@ -5,7 +5,8 @@
 
 {% block body %}
 
-<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="EnergyContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="MoneyContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
 {% block javascripts %}
     <script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
@@ -18,23 +19,27 @@
     var x_values = [];
     var y_values_receive = [];
     var y_values_deliver = [];
-{#    var y_values_site = []; #}
+    var y_values_site = [];
+    var y_values_einnahmen = [];
+    var y_values_ausgaben = [];
 
-    {% for entry in monthData %}
-        var ts = '{{entry.date}}';
+    {% for entry in monthdata %}
+        var ts = '{{entry.date|date('d m Y')}}';
         x_values.push(ts);
-        y_values_receive.push( {{entry.recEnHiTar|number_format(1,'.','') }} );
-        y_values_deliver.push( {{entry.traEnHiTar|number_format(1,'.','') }} );
-{#        y_values_site.push( {{entry.sitepower|number_format(1,'.','') }} ); #}
+        y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} );
+        y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} );
+        y_values_site.push( {{entry.produktion|number_format(1,'.','') }} );
+	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} );
+	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} );
     {% endfor %}
 
-    $('#container').highcharts({
+    $('#EnergyContainer').highcharts({
 
            chart: {
                type: 'column',
            },
            title: {
-               text: 'Monatsübersicht'
+               text: 'Monatsübersicht Energie'
            },
            subtitle: {
                text: 'Gäbrisstrasse 43a'
@@ -66,10 +71,51 @@
            }, {
                name: 'Rückspeisung Netz',
                data: y_values_deliver
-           }{#, {
+           }, {
                name: 'Produktion',
                data: y_values_site
-        }#}]
+        }]
+    });
+
+    $('#MoneyContainer').highcharts({
+
+           chart: {
+               type: 'column',
+           },
+           title: {
+               text: 'Monatsübersicht Kosten'
+           },
+           subtitle: {
+               text: 'Gäbrisstrasse 43a'
+           },
+           xAxis : {
+               title : {
+                   text : 'Datum'
+               },
+               categories : x_values,
+               type: 'datetime'
+           },
+           yAxis: {
+               title: {
+                   text: 'Geld [Rappen]'
+               },
+               min: 0
+           },
+
+           plotOptions: {
+               spline: {
+                   marker: {
+                       enabled: true
+                   }
+               }
+           },
+          series: [{
+               name: 'Einnahmen',
+               data: y_values_einnahmen
+           }, {
+               name: 'Ausgaben',
+               data: y_values_ausgaben
+        }]
     });
 });
 </script>

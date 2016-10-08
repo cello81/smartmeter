@@ -8,6 +8,7 @@ import time
 import threading
 import sys
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from datetime import datetime
 
 GPIO.setmode(GPIO.BCM)  
   
@@ -15,15 +16,21 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(3 , GPIO.IN, pull_up_down=GPIO.PUD_UP)  
 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+# f = open('mislogfile.txt', 'w') #create a file using the given input
+
 def ReadSitePower():
    try:
-      response = FroniusWR.read_input_registers(0,2)
-      sitePower = response.registers[0]
+      response = FroniusWR.read_holding_registers(500,2,unit=1)
+      sitePower = response.registers[0] # this only interprets one uint16... (65kW, should be enough)
    except ConnectionException:
       sitePower = -1
    return sitePower
 
 def TransmitWorker():
+#   print('Prozess ID:', os.getpid())
+#   f.write('Transmit worker: Prozess ID:' + str(os.getpid()) + '\n')
+#   f.write('Recorded at: %s\n'  %datetime.now())
+#   f.flush()
    sitePower = ReadSitePower()
    urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
@@ -40,15 +47,24 @@ def ConsumeWorker():
    return 0
 
 def greenTransmitEnergy(channel):
-   TransmitProcess = Process(target=TransmitWorker)
-   TransmitProcess.start()
+#   f.write('greenTransmitEnergy: Prozess ID:' + str(os.getpid()) + '\n')
+#   f.write('Recorded at: %s\n'  %datetime.now())
+   if GPIO.input(3) == GPIO.LOW:
+#     f.write('GPIO(3) == GPIO.LOW\n')
+     TransmitProcess = Process(target=TransmitWorker)
+     TransmitProcess.start()
+#   f.flush()
 
 def yellowConsumeEnergy(channel):
-   ConsumeProcess = Process(target=ConsumeWorker)
-   ConsumeProcess.start()
+   if GPIO.input(15) == GPIO.LOW:
+     ConsumeProcess = Process(target=ConsumeWorker)
+     ConsumeProcess.start()
 
 if __name__ == '__main__':
     FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
+#    f.write('main: Prozess ID:' + str(os.getpid()) + '\n')
+#    f.write('Recorded at: %s\n'  %datetime.now())
+#    f.flush()
     
     GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=1000)
     GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=1000)
@@ -64,3 +80,4 @@ try:
 except KeyboardInterrupt:  
     GPIO.cleanup()       # clean up GPIO on CTRL+C exit  
 GPIO.cleanup()
+#f.close()
