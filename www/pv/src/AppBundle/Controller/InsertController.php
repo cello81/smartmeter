@@ -13,6 +13,70 @@ use DateInterval;
 class InsertController extends Controller
 {
     /** 
+    * @Route("/update/dailydata/{date}")
+    */
+    public function updateDailyDataAction($date)
+    {
+	$dailydata = new Dailydata();
+        $startTime = new DateTime($date);
+
+        $endTime = clone $startTime;
+        $endTime->add(new DateInterval('P1D'));
+
+	$dailydata->setDate($startTime);
+//echo $startTime->format('Y-m-d H:i:s');
+//echo $endTime->format('Y-m-d H:i:s');
+	$em = $this->getDoctrine()->getManager();
+	$meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+       $query = $meterdataRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'ASC')
+                ->where('p.measuringtime > :datefrom')
+                ->andWhere('p.measuringtime < :dateto')
+                ->setParameter('datefrom', $startTime)
+                ->setParameter('dateto', $endTime)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+//        $transmitEnergy = 0;
+        $receiveEnergy = 0;
+//        $transmitPrice = 0;
+        $receivePrice = 0;
+
+        foreach ($meterdataAll as $mde) {
+            $netflow = $mde->getNetflow();
+
+           if ($netflow > 0 )
+           {   // receive
+                $receiveEnergy += 10;
+                $receivePrice += $mde->getTariff() / 100;
+           }
+        }
+
+//	$dailydata->setEinnahmen($transmitPrice);
+	$dailydata->setAusgaben($receivePrice);
+	$dailydata->setBezug($receiveEnergy);
+//	$dailydata->setLieferung($transmitEnergy);
+
+	$dailyRepo = $em->getRepository('AppBundle:Dailydata');
+	$dailyQuery = $dailyRepo->createQueryBuilder('u')
+			->update()
+			->set('u.bezug', '?1')
+				->setParameter(1,$receiveEnergy)
+			->set('u.ausgaben', '?2')
+				->setParameter(2,$receivePrice)
+			->where('u.date = :mydate')
+				->setParameter('mydate', $startTime)
+			->getQuery();
+
+	$dailyQuery->execute();
+
+        return new Response(
+            '<html><body>Save successful!</body></html>' );
+     }
+
+    /** 
     * @Route("/insert/dailydata/{date}/{dailysitepower}")
     */
     public function insertDailyDataAction($date, $dailysitepower)
@@ -40,9 +104,9 @@ class InsertController extends Controller
         $meterdataAll = $query->getResult();
 
         $transmitEnergy = 0;
-        $receiveEnergy = 0;
+//        $receiveEnergy = 0;
         $transmitPrice = 0;
-        $receivePrice = 0;
+//        $receivePrice = 0;
 
         foreach ($meterdataAll as $mde) {
             $netflow = $mde->getNetflow();
@@ -52,16 +116,11 @@ class InsertController extends Controller
 		$transmitEnergy += 10;
                 $transmitPrice += $mde->getTariff() / 100; // Preis ist pro kWh hinterlegt, Abrechnung pro 10Wh
             }
-            else
-            {   // receive
-                $receiveEnergy += 10;
-                $receivePrice += $mde->getTariff() / 100;
-            }
         }
 
 	$dailydata->setEinnahmen($transmitPrice);
-	$dailydata->setAusgaben($receivePrice);
-	$dailydata->setBezug($receiveEnergy);
+	$dailydata->setAusgaben(0);
+	$dailydata->setBezug(0);
 	$dailydata->setLieferung($transmitEnergy);
 	$dailydata->setProduktion($dailysitepower);
 
