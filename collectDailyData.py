@@ -1,4 +1,3 @@
-# call this script without any argument to be able to close it with a keyboard input
 from pymodbus.exceptions import ConnectionException
 import urllib2
 import time
@@ -6,15 +5,17 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from datetime import datetime
 
   
-#f = open('collectdailylogfile.txt', 'w') #create a file using the given input
+#f = open('/home/pi/smartmeter/tempfile.txt', 'w') #create a file using the given input
 
 froniusIsOnline = 1
 sitePower = 0
 while ( froniusIsOnline ):
    try:
       FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
-      response = FroniusWR.read_input_registers(502,4) # parameters: register address, number of regs to read
-      sitePower = response.registers[0]                # interpret only first uint16... not really good!
+      response = FroniusWR.read_holding_registers(502,4,unit=1) # parameters: register address, number of regs to read
+      sitePower = response.registers[2]                # interpret only first uint16... not really good!
+#      f.write('Actual site power is: ' + str(sitePower) + ' at %s\n'  %datetime.now())
+#      f.flush()
       time.sleep(300)
    except ConnectionException:
       froniusIsOnline = 0

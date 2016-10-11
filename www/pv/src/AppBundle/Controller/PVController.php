@@ -59,61 +59,20 @@ class PVController extends Controller
         return $meterdataAll;
      }
 
-
-     // returns all deliver events
-     public function GetDeliverEvents($datetoshowfrom, $datetoshowto)
-     {
-       $em = $this->getDoctrine()->getManager();
-       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
-
-       $prevTime = new DateTime($datetoshowfrom);
-       $dateTimeEnd = new DateTime($datetoshowto);
-
-       $query = $meterdataRepo->createQueryBuilder('p')
-                ->orderBy('p.id', 'ASC')
-                ->where('p.measuringtime > :datefrom')
-                ->andWhere('p.measuringtime < :dateto')
-                ->andWhere('p.netflow < 0')
-                ->setParameter('datefrom', $prevTime)
-                ->setParameter('dateto', $dateTimeEnd)
-                ->getQuery();
-
-        $meterdataAll = $query->getResult();
-
-        foreach ($meterdataAll as $mde) {
-            $time = $mde->getMeasuringtime();
-            $netflow = $mde->getNetflow();
-
-            $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
-
-            if ($mde->getTimediff() != 0)
-                $mde->setwattNet((-1)*$netflow/($mde->GetTimediff()/3600));
-            else
-                $mde->setwattNet(-1);
-
-            $prevTime = $time;
-        }
-        return $meterdataAll;
-     }
-
-
      /**
      * @Route("/pv/{datetoshowfrom}/{datetoshowto}/")
      */
 
     public function PVDataAction($datetoshowfrom, $datetoshowto)
     {
-//        $receiveEvents = PVController::GetReceiveEvents($datetoshowfrom, $datetoshowto);
         $events = PVController::GetEvents($datetoshowfrom, $datetoshowto);
-//	$deliverEvents = PVController::GetDeliverEvents($datetoshowfrom, $datetoshowto);
 	$pvdata = array();
 
-	$pvdata['events'] = $events;
-//	$pvdata['deliverEvents'] = $deliverEvents;
-	$pvdata['consume']       = PVController::ShowConsume();
-	$pvdata['deliver']       = PVController::ShowDeliver();
-	$pvdata['site']          = PVController::ShowSite();
-	$pvdata['receive']       = PVController::ShowReceive();
+	$pvdata['events']   = $events;
+	$pvdata['consume']  = PVController::ShowConsume();
+	$pvdata['deliver']  = PVController::ShowDeliver();
+	$pvdata['site']     = PVController::ShowSite();
+	$pvdata['receive']  = PVController::ShowReceive();
 
         return $this->render(
                 'pv/dashboard.html.twig',
@@ -130,7 +89,6 @@ class PVController extends Controller
     }
 
 
-
      // returns all data from one month (format of month 2016-10)
      public function GetMonthData($month)
      {
@@ -143,7 +101,7 @@ class PVController extends Controller
 
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
-                ->where('p.date > :datefrom')
+                ->where('p.date >= :datefrom')
                 ->andWhere('p.date < :dateto')
                 ->setParameter('datefrom', $startTime)
                 ->setParameter('dateto', $endTime)
@@ -179,20 +137,9 @@ class PVController extends Controller
      /**
      * @Route("/show/cost/")
      */
-    public function ShowTodayCost()
+    public function ShowasdfTodayCost()
     {
 	$value = 500;
-        return $this->render(
-                'show/value.html.twig',
-                array('value' => $value));
-    }
-
-    /**
-     * @Route("/show/cost/{costfrom}/{costto}")
-     */
-    public function ShowCostFromTo($costfrom, $costto)
-    {
-	$value = 3300;
         return $this->render(
                 'show/value.html.twig',
                 array('value' => $value));

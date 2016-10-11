@@ -6,9 +6,9 @@
 {% block body %}
 
 <p>Aktueller Verbrauch: {{ pvdata.consume|number_format(1,'.','') }} Watt<br />
-Aktuelle Produktion {{ pvdata.site|number_format(1,'.','') }} Watt<br />
-Aktuelle Lieferung: {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />
-Aktueller Bezug: {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
+Aktuelle Produktion:    {{ pvdata.site|number_format(1,'.','') }} Watt<br />
+Aktuelle Lieferung:     {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />
+Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
@@ -26,13 +26,6 @@ Aktueller Bezug: {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
     var y_values_deliver = [];
     var y_values_site = [];
 
-{#    {% for entry in pvdata.receiveEvents %}
-        var ts = '{{entry.measuringtime|date('d m Y H:i:s')}}';
-        x_values.push(ts);
-        y_values_receive.push( {{entry.wattnet|number_format(1,'.','') }} );
-        y_values_site.push( {{entry.sitepower|number_format(1,'.','') }} );
-    {% endfor %}
-#}
     {% for entry in pvdata.events %}
         var ts = '{{entry.measuringtime|date('d m Y H:i:s')}}';
         x_values.push(ts);
@@ -71,7 +64,7 @@ Aktueller Bezug: {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
            plotOptions: {
                spline: {
                    marker: {
-                       enabled: true
+                       enabled: false
                    }
                }
            },

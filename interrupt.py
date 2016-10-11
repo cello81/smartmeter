@@ -23,7 +23,7 @@ def ReadSitePower():
       response = FroniusWR.read_holding_registers(500,2,unit=1)
       sitePower = response.registers[0] # this only interprets one uint16... (65kW, should be enough)
    except ConnectionException:
-      sitePower = -1
+      sitePower = 0
    return sitePower
 
 def TransmitWorker():
