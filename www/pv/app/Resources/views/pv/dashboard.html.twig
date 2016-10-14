@@ -86,6 +86,7 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
                lineWidth: 1,
                visible: false
            }, {
+		type: 'areaspline',
                name: 'Verbrauch',
                data: y_values_consume,
 	       color: '#FFAA00'
