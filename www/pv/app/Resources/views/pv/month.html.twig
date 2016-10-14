@@ -20,6 +20,7 @@
     var y_values_receive = [];
     var y_values_deliver = [];
     var y_values_site = [];
+    var y_values_consume = [];
     var y_values_einnahmen = [];
     var y_values_ausgaben = [];
 
@@ -29,6 +30,7 @@
         y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} );
         y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} );
         y_values_site.push( {{entry.produktion|number_format(1,'.','') }} );
+        y_values_consume.push( {{entry.verbrauch|number_format(1,'.','') }} );
 	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} );
 	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} );
     {% endfor %}
@@ -53,7 +55,7 @@
            },
            yAxis: {
                title: {
-                   text: 'Leistung [Watt]'
+                   text: 'Leistung [WattStunden]'
                },
                min: 0
            },
@@ -67,13 +69,20 @@
            },
           series: [{
                name: 'Bezug Netz',
-               data: y_values_receive
+               data: y_values_receive,
+		color: '#434348'
            }, {
                name: 'Rückspeisung Netz',
-               data: y_values_deliver
+               data: y_values_deliver,
+		color: '#7cb5ec'
            }, {
                name: 'Produktion',
-               data: y_values_site
+               data: y_values_site,
+		color: '#90ed7d'
+	   }, {
+               name: 'Verbrauch',
+               data: y_values_consume,
+               color: '#FFAA00'
         }]
     });
 

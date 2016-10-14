@@ -41,6 +41,7 @@ class Rawdata
     private $timediff;
     private $wattReceive;
     private $wattDeliver;
+    private $wattConsume;
 
     public function getTimediff()
     {
@@ -50,6 +51,11 @@ class Rawdata
     public function getWattReceive()
     {
         return $this->wattReceive;
+    }
+
+    public function getWattConsume()
+    {
+        return $this->wattConsume;
     }
 
     public function getWattDeliver()
@@ -66,6 +72,12 @@ class Rawdata
     public function setWattReceive($wattnet)
     {
          $this->wattReceive = $wattnet;
+ 	 return $this;
+    }
+
+    public function setWattConsume($wattnet)
+    {
+         $this->wattConsume = $wattnet;
  	 return $this;
     }
 

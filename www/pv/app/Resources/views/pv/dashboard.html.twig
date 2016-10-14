@@ -24,7 +24,8 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
     var x_values = [];
     var y_values_receive = [];
     var y_values_deliver = [];
-    var y_values_site = [];
+    var y_values_site    = [];
+    var y_values_consume = [];
 
     {% for entry in pvdata.events %}
         var ts = '{{entry.measuringtime|date('d m Y H:i:s')}}';
@@ -32,6 +33,7 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
         y_values_receive.push( {{entry.wattReceive|number_format(1,'.','') }} );
         y_values_deliver.push( {{entry.wattDeliver|number_format(1,'.','') }} );
         y_values_site.push( {{entry.sitepower|number_format(1,'.','') }} );
+        y_values_consume.push( {{entry.wattConsume|number_format(1,'.','') }} );
     {% endfor %}
 
     $('#container').highcharts({
@@ -62,24 +64,35 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
            },
 
            plotOptions: {
-               spline: {
-                   marker: {
+{#		areaspline: {
+      			fillOpacity: 0.5
+		}, #}
+		spline: {
+			marker: {
                        enabled: false
-                   }
-               }
+                   },
+               },
            },
-/*	  tooltip: {
-		  dateTimeLabelFormats: hour:"%A, %b %e, %H:%M:%S"
-	  },        	
-  */        series: [{
+           series: [{
                name: 'Bezug Netz',
-               data: y_values_receive
+               data: y_values_receive,
+	       color: '#434348',
+               lineWidth: 1,
+               visible: false
            }, {
                name: 'Rückspeisung Netz',
-               data: y_values_deliver
+               data: y_values_deliver,
+	       color: '#7cb5ec',
+               lineWidth: 1,
+               visible: false
+           }, {
+               name: 'Verbrauch',
+               data: y_values_consume,
+	       color: '#FFAA00'
            }, {
                name: 'Produktion',
-               data: y_values_site
+               data: y_values_site,
+	       color: '#90ed7d'
         }]
     });
 });

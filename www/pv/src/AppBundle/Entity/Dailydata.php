@@ -48,6 +48,11 @@ class Dailydata
     private $produktion;
 
     /**
+     * @ORM\Column(type="decimal", scale=2)
+     */
+    private $verbrauch;
+
+    /**
      * Get id
      *
      * @return integer
@@ -199,5 +204,29 @@ class Dailydata
     public function getProduktion()
     {
         return $this->produktion;
+    }
+
+    /**
+     * Set verbrauch
+     *
+     * @param string $verbrauch
+     *
+     * @return Dailydata
+     */
+    public function setVerbrauch($verbrauch)
+    {
+        $this->verbrauch = $verbrauch;
+
+        return $this;
+    }
+
+    /**
+     * Get verbrauch
+     *
+     * @return string
+     */
+    public function getVerbrauch()
+    {
+        return $this->verbrauch;
     }
 }

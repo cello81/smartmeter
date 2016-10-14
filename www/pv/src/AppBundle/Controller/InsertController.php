@@ -39,9 +39,7 @@ class InsertController extends Controller
 
         $meterdataAll = $query->getResult();
 
-//        $transmitEnergy = 0;
         $receiveEnergy = 0;
-//        $transmitPrice = 0;
         $receivePrice = 0;
 
         foreach ($meterdataAll as $mde) {
@@ -54,10 +52,8 @@ class InsertController extends Controller
            }
         }
 
-//	$dailydata->setEinnahmen($transmitPrice);
 	$dailydata->setAusgaben($receivePrice);
 	$dailydata->setBezug($receiveEnergy);
-//	$dailydata->setLieferung($transmitEnergy);
 
 	$dailyRepo = $em->getRepository('AppBundle:Dailydata');
 	$dailyQuery = $dailyRepo->createQueryBuilder('u')

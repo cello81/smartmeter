@@ -23,7 +23,6 @@ class PVController extends Controller
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
                 ->andWhere('p.measuringtime < :dateto')
-  //              ->andWhere('p.netflow > 0')
                 ->setParameter('datefrom', $prevTime)
                 ->setParameter('dateto', $dateTimeEnd)
                 ->getQuery();
@@ -40,13 +39,17 @@ class PVController extends Controller
 	    {
 		if( $netflow > 0 )
 		{
-	                $mde->setWattReceive($netflow/($mde->GetTimediff()/3600));
+	                $receive = $netflow/($mde->GetTimediff()/3600);
+	                $mde->setWattReceive($receive);
 	                $mde->setWattDeliver(0);
+			$mde->setWattConsume($mde->GetSitePower()+$receive);
 		}
 		else
 		{
-	                $mde->setWattDeliver(-1*$netflow/($mde->GetTimediff()/3600));
+	                $deliver = -1*$netflow/($mde->GetTimediff()/3600);
+	                $mde->setWattDeliver($deliver);
 	                $mde->setWattReceive(0);
+			$mde->setWattConsume($mde->GetSitePower()-$deliver);
 		}
 	    }
             else
@@ -93,13 +96,13 @@ class PVController extends Controller
      public function GetMonthData($month)
      {
        $em = $this->getDoctrine()->getManager();
-       $meterdataRepo = $em->getRepository('AppBundle:Dailydata');
+       $dailyDataRepo = $em->getRepository('AppBundle:Dailydata');
 
        $startTime = new DateTime($month);
        $endTime   = clone $startTime;
        $endTime->add(new DateInterval('P1M'));  // + 1 Monat
 
-       $query = $meterdataRepo->createQueryBuilder('p')
+       $query = $dailyDataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
                 ->where('p.date >= :datefrom')
                 ->andWhere('p.date < :dateto')
@@ -107,9 +110,14 @@ class PVController extends Controller
                 ->setParameter('dateto', $endTime)
                 ->getQuery();
 
-        $meterdataAll = $query->getResult();
+        $dailyDataAll = $query->getResult();
 
-        return $meterdataAll;
+	foreach($dailyDataAll as $dda)
+	{
+		$dda->SetVerbrauch($dda->GetBezug() + $dda->GetProduktion() - $dda->GetLieferung());
+	}
+
+        return $dailyDataAll;
      }
 
      /**
@@ -117,8 +125,6 @@ class PVController extends Controller
      */
     public function PVMonthAction($month)
     {
-	$pvdata = array();
-
 	$monthdata = PVController::GetMonthData($month);
 
         return $this->render(
@@ -137,14 +143,14 @@ class PVController extends Controller
      /**
      * @Route("/show/cost/")
      */
-    public function ShowasdfTodayCost()
+/*    public function ShowaTodayCost()
     {
 	$value = 500;
         return $this->render(
                 'show/value.html.twig',
                 array('value' => $value));
     }
-
+*/
     public function ShowReceive()
     {
        $em = $this->getDoctrine()->getManager();
