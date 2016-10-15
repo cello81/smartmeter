@@ -117,6 +117,7 @@ class InsertController extends Controller
 	$dailydata->setEinnahmen($transmitPrice);
 	$dailydata->setAusgaben(0);
 	$dailydata->setBezug(0);
+	$dailydata->setVerbrauch(0);
 	$dailydata->setLieferung($transmitEnergy);
 	$dailydata->setProduktion($dailysitepower);
 
