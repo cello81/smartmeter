@@ -9,6 +9,15 @@
 Aktuelle Produktion:    {{ pvdata.site|number_format(1,'.','') }} Watt<br />
 Aktuelle Lieferung:     {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />
 Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p>
+{#
+{% for entry in pvdata.events %}
+    Time: {{entry.measuringtime|date('d m Y H:i:s')}}
+    receive {{entry.wattReceive|number_format(1,'.','') }}
+    deliver {{entry.wattDeliver|number_format(1,'.','') }}
+    site    {{entry.sitepower|number_format(1,'.','') }}
+    consume {{entry.wattConsume|number_format(1,'.','') }}<br />
+{% endfor %}
+#}
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 

@@ -100,9 +100,7 @@ class InsertController extends Controller
         $meterdataAll = $query->getResult();
 
         $transmitEnergy = 0;
-//        $receiveEnergy = 0;
         $transmitPrice = 0;
-//        $receivePrice = 0;
 
         foreach ($meterdataAll as $mde) {
             $netflow = $mde->getNetflow();

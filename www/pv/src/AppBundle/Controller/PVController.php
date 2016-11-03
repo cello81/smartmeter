@@ -29,34 +29,45 @@ class PVController extends Controller
 
         $meterdataAll = $query->getResult();
 
+	$prevReceiveTime = new DateTime($datetoshowfrom);
+	$prevDeliverTime = new DateTime($datetoshowfrom);
+
         foreach ($meterdataAll as $mde) {
-            $time = $mde->getMeasuringtime();
             $netflow = $mde->getNetflow();
 
-            $mde->setTimediff($time->getTimestamp() - $prevTime->getTimestamp());
-
-            if ($mde->getTimediff() != 0)
-	    {
+//            if ($mde->getTimediff() != 0)
+//	    {
+		$time = $mde->getMeasuringtime();
 		if( $netflow > 0 )
 		{
-	                $receive = $netflow/($mde->GetTimediff()/3600);
+// 			$receiveTime = $mde->getMeasuringtime();
+			//$mde->setTimediff($receiveTime->getTimestamp() - $prevReceiveTime->getTimestamp());
+//			$delta = $receiveTime->getTimestamp() - $prevReceiveTime->getTimestamp();
+			$delta = $time->getTimestamp() - $prevTime->getTimestamp();
+	                $receive = $netflow/($delta/3600);
 	                $mde->setWattReceive($receive);
 	                $mde->setWattDeliver(0);
 			$mde->setWattConsume($mde->GetSitePower()+$receive);
+//			$prevReceiveTime = $receiveTime;
 		}
 		else
 		{
-	                $deliver = -1*$netflow/($mde->GetTimediff()/3600);
+// 			$deliverTime = $mde->getMeasuringtime();
+ 			//$mde->setTimediff($deliverTime->getTimestamp() - $prevDeliverTime->getTimestamp());
+ 			$deltaDeliver = $time->getTimestamp() - $prevTime->getTimestamp();
+// 			$deltaDeliver = $deliverTime->getTimestamp() - $prevDeliverTime->getTimestamp();
+	                $deliver = -1*$netflow/($deltaDeliver/3600);
 	                $mde->setWattDeliver($deliver);
 	                $mde->setWattReceive(0);
 			$mde->setWattConsume($mde->GetSitePower()-$deliver);
+//			$prevDeliverTime = $deliverTime;
 		}
-	    }
-            else
-            {
-	        $mde->setwattReceive(-1);
-                $mde->setwattDeliver(-1);
-	    }
+//	    }
+//           else
+//           {
+//	        $mde->setwattReceive(-1);
+//                $mde->setwattDeliver(-1);
+//	    }
             $prevTime = $time;
         }
         return $meterdataAll;
