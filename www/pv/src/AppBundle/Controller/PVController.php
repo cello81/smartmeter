@@ -99,7 +99,10 @@ class PVController extends Controller
 
     public function ShowPVDashboard()
     {
-	return PVController::PVDataAction('today','NOW');
+	$todayMorning = new DateTime('today');
+	$todayMorning->add(new DateInterval('PT6H')); // + 6h
+	$todayMorningString = $todayMorning->format("Y-m-d h:i:s");
+	return PVController::PVDataAction($todayMorningString,'NOW');
     }
 
 
