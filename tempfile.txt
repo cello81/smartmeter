@@ -1,0 +1,24 @@
+Actual site power is: 5535 at 2016-11-16 18:00:01.791004
+Actual site power is: 5535 at 2016-11-16 18:15:02.036059
+Actual site power is: 5535 at 2016-11-16 18:30:02.291557
+Actual site power is: 5535 at 2016-11-16 18:45:02.538838
+Actual site power is: 5535 at 2016-11-16 19:00:02.805494
+Actual site power is: 5535 at 2016-11-16 19:15:03.132700
+Actual site power is: 5535 at 2016-11-16 19:30:03.462844
+Actual site power is: 5535 at 2016-11-16 19:45:03.727035
+Actual site power is: 5535 at 2016-11-16 20:00:04.035983
+Actual site power is: 5535 at 2016-11-16 20:15:04.289359
+Actual site power is: 5535 at 2016-11-16 20:30:04.617069
+Actual site power is: 5535 at 2016-11-16 20:45:04.957178
+Actual site power is: 5535 at 2016-11-16 21:00:05.285719
+Actual site power is: 5535 at 2016-11-16 21:15:05.536896
+Actual site power is: 5535 at 2016-11-16 21:30:05.816917
+Actual site power is: 5535 at 2016-11-16 21:45:06.105827
+Actual site power is: 5535 at 2016-11-16 22:00:06.385245
+Actual site power is: 5535 at 2016-11-16 22:15:06.713402
+Actual site power is: 5535 at 2016-11-16 22:30:07.042849
+Actual site power is: 5535 at 2016-11-16 22:45:07.286052
+Actual site power is: 5535 at 2016-11-16 23:00:07.538978
+Call: "http://localhost/pv/web/app.php/insert/dailydata/2016-11-16/5535" ...
+
+Successful! URL was:http://localhost/pv/web/app.php/insert/dailydata/2016-11-16/5535at: 2016-11-16 23:00:09.660663
