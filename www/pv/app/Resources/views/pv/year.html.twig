@@ -1,0 +1,141 @@
+{# app/Resources/views/pv/year.html.twig #}
+{% extends 'pvbase.html.twig' %}
+
+{% block title %}Jahresübersicht{% endblock %}
+
+{% block body %}
+
+{#
+    {% for entry in yeardata %}
+        {{entry.bezug|number_format(1,'.','') }};
+	{{entry.lieferung|number_format(1,'.','') }};
+	{{entry.produktion|number_format(1,'.','') }};
+    {% endfor %}
+#}
+
+<div id="EnergyContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="MoneyContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+{% block javascripts %}
+    <script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
+    <script src="{{ absolute_url(asset('https://code.highcharts.com/highcharts.js')) }}"></script>
+    <script src="{{ absolute_url(asset('https://code.highcharts.com/modules/exporting.js')) }}"></script>
+{% endblock %}
+
+<script type="text/javascript" >
+ $(function () {
+    var x_values = [];
+    var y_values_receive = [];
+    var y_values_deliver = [];
+    var y_values_site = [];
+    var y_values_consume = [];
+    var y_values_einnahmen = [];
+    var y_values_ausgaben = [];
+
+    {% for entry in yeardata %}
+        var ts = '{{entry.date|date('m')}}';
+        x_values.push(ts);
+        y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} );
+        y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} );
+        y_values_site.push( {{entry.produktion|number_format(1,'.','') }} );
+        y_values_consume.push( {{entry.verbrauch|number_format(1,'.','') }} );
+	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} );
+	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} );
+    {% endfor %}
+
+    $('#EnergyContainer').highcharts({
+
+           chart: {
+               type: 'column',
+           },
+           title: {
+               text: 'Jahresübersicht Energie'
+           },
+           subtitle: {
+               text: 'Gäbrisstrasse 43a'
+           },
+           xAxis : {
+               title : {
+                   text : 'Datum'
+               },
+               categories : x_values,
+               type: 'datetime'
+           },
+           yAxis: {
+               title: {
+                   text: 'Leistung [WattStunden]'
+               },
+               min: 0
+           },
+
+           plotOptions: {
+               spline: {
+                   marker: {
+                       enabled: true
+                   }
+               }
+           },
+          series: [{
+               name: 'Bezug Netz',
+               data: y_values_receive,
+		color: '#434348'
+           }, {
+               name: 'Rückspeisung Netz',
+               data: y_values_deliver,
+		color: '#7cb5ec'
+           }, {
+               name: 'Produktion',
+               data: y_values_site,
+		color: '#90ed7d'
+	   }, {
+               name: 'Verbrauch',
+               data: y_values_consume,
+               color: '#FFAA00'
+        }]
+    });
+
+    $('#MoneyContainer').highcharts({
+
+           chart: {
+               type: 'column',
+           },
+           title: {
+               text: 'Jahresübersicht Kosten'
+           },
+           subtitle: {
+               text: 'Gäbrisstrasse 43a'
+           },
+           xAxis : {
+               title : {
+                   text : 'Datum'
+               },
+               categories : x_values,
+               type: 'datetime'
+           },
+           yAxis: {
+               title: {
+                   text: 'Geld [Rappen]'
+               },
+               min: 0
+           },
+
+           plotOptions: {
+               spline: {
+                   marker: {
+                       enabled: true
+                   }
+               }
+           },
+          series: [{
+               name: 'Einnahmen',
+               data: y_values_einnahmen
+           }, {
+               name: 'Ausgaben',
+               data: y_values_ausgaben
+        }]
+    });
+});
+</script>
+
+{% endblock %}
+
