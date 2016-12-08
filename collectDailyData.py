@@ -5,7 +5,7 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 from datetime import datetime
 
   
-f = open('/home/pi/smartmeter/tempfile.txt', 'w') #create a file using the given input
+#f = open('/home/pi/smartmeter/tempfile.txt', 'w') #create a file using the given input
 
 # This script is started via a crontab task at 18:00. It reads the daily energy every 15 min 
 # until Fronius goes offline or until 23:00.
@@ -18,8 +18,8 @@ while ( froniusIsOnline ):
       FroniusWR = ModbusClient(host = '192.168.1.38', port=502)
       response = FroniusWR.read_holding_registers(502,4,unit=1) # parameters: register address, number of regs to read
       sitePower = response.registers[2]                # interpret only first uint16... not really good!
-      f.write('Actual site power is: ' + str(sitePower) + ' at %s\n'  %datetime.now())
-      f.flush()
+ #     f.write('Actual site power is: ' + str(sitePower) + ' at %s\n'  %datetime.now())
+ #     f.flush()
       if counter == 20:
           froniusIsOnline = 0   #end loop, its 20 x 15 min (5 hours) later
       else:
@@ -39,10 +39,10 @@ urlToSet += str(date.day)
 urlToSet += "/"
 urlToSet += str(sitePower)
 
-f.write('Call: \"' + urlToSet + '\" ...\n')
-f.flush()
+#f.write('Call: \"' + urlToSet + '\" ...\n')
+#f.flush()
 
 urllib2.urlopen(urlToSet)
 
-f.write('\nSuccessful! URL was:' + urlToSet + 'at: %s\n'  %datetime.now())
-f.close()
+#f.write('\nSuccessful! URL was:' + urlToSet + 'at: %s\n'  %datetime.now())
+#f.close()

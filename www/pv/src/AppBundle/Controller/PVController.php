@@ -40,6 +40,7 @@ class PVController extends Controller
 //            if ($mde->getTimediff() != 0)
 //	    {
 		$time = $mde->getMeasuringtime();
+//echo $time->format('Y:m:d H:i:s');
 		if( $netflow > 0 )
 		{
 // 			$receiveTime = $mde->getMeasuringtime();
@@ -70,6 +71,7 @@ class PVController extends Controller
 //	        $mde->setwattReceive(-1);
 //                $mde->setwattDeliver(-1);
 //	    }
+		$mde->SetJSTimestamp($time->getTimestamp()*1000);
             $prevTime = $time;
         }
         return $meterdataAll;

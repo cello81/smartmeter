@@ -42,6 +42,12 @@ class Rawdata
     private $wattReceive;
     private $wattDeliver;
     private $wattConsume;
+    private $jstimestamp; // a javascript compatible timestamp which is used by highcharts
+
+    public function getJSTimestamp()
+    {
+        return $this->jstimestamp;
+    }
 
     public function getTimediff()
     {
@@ -61,6 +67,12 @@ class Rawdata
     public function getWattDeliver()
     {
         return $this->wattDeliver;
+    }
+
+    public function setJSTimestamp($timestamp)
+    {
+        $this->jstimestamp = $timestamp;
+	return $this;
     }
 
     public function setTimediff($timediff)

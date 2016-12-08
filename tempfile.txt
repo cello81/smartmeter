@@ -1,24 +1,24 @@
-Actual site power is: 5535 at 2016-11-16 18:00:01.791004
-Actual site power is: 5535 at 2016-11-16 18:15:02.036059
-Actual site power is: 5535 at 2016-11-16 18:30:02.291557
-Actual site power is: 5535 at 2016-11-16 18:45:02.538838
-Actual site power is: 5535 at 2016-11-16 19:00:02.805494
-Actual site power is: 5535 at 2016-11-16 19:15:03.132700
-Actual site power is: 5535 at 2016-11-16 19:30:03.462844
-Actual site power is: 5535 at 2016-11-16 19:45:03.727035
-Actual site power is: 5535 at 2016-11-16 20:00:04.035983
-Actual site power is: 5535 at 2016-11-16 20:15:04.289359
-Actual site power is: 5535 at 2016-11-16 20:30:04.617069
-Actual site power is: 5535 at 2016-11-16 20:45:04.957178
-Actual site power is: 5535 at 2016-11-16 21:00:05.285719
-Actual site power is: 5535 at 2016-11-16 21:15:05.536896
-Actual site power is: 5535 at 2016-11-16 21:30:05.816917
-Actual site power is: 5535 at 2016-11-16 21:45:06.105827
-Actual site power is: 5535 at 2016-11-16 22:00:06.385245
-Actual site power is: 5535 at 2016-11-16 22:15:06.713402
-Actual site power is: 5535 at 2016-11-16 22:30:07.042849
-Actual site power is: 5535 at 2016-11-16 22:45:07.286052
-Actual site power is: 5535 at 2016-11-16 23:00:07.538978
-Call: "http://localhost/pv/web/app.php/insert/dailydata/2016-11-16/5535" ...
+Actual site power is: 11964 at 2016-12-07 18:00:01.722025
+Actual site power is: 11964 at 2016-12-07 18:15:02.050229
+Actual site power is: 11964 at 2016-12-07 18:30:02.366129
+Actual site power is: 11964 at 2016-12-07 18:45:02.613813
+Actual site power is: 11964 at 2016-12-07 19:00:02.867364
+Actual site power is: 11964 at 2016-12-07 19:15:03.114347
+Actual site power is: 11964 at 2016-12-07 19:30:03.370355
+Actual site power is: 11964 at 2016-12-07 19:45:03.614268
+Actual site power is: 11964 at 2016-12-07 20:00:03.920390
+Actual site power is: 11964 at 2016-12-07 20:15:04.248134
+Actual site power is: 11964 at 2016-12-07 20:30:04.575651
+Actual site power is: 11964 at 2016-12-07 20:45:04.915885
+Actual site power is: 11964 at 2016-12-07 21:00:05.203171
+Actual site power is: 11964 at 2016-12-07 21:15:05.531240
+Actual site power is: 11964 at 2016-12-07 21:30:05.859218
+Actual site power is: 11964 at 2016-12-07 21:45:06.114280
+Actual site power is: 11964 at 2016-12-07 22:00:06.378662
+Actual site power is: 11964 at 2016-12-07 22:15:06.696903
+Actual site power is: 11964 at 2016-12-07 22:30:06.958500
+Actual site power is: 11964 at 2016-12-07 22:45:07.299714
+Actual site power is: 11964 at 2016-12-07 23:00:07.576342
+Call: "http://localhost/pv/web/app.php/insert/dailydata/2016-12-7/11964" ...
 
-Successful! URL was:http://localhost/pv/web/app.php/insert/dailydata/2016-11-16/5535at: 2016-11-16 23:00:09.660663
+Successful! URL was:http://localhost/pv/web/app.php/insert/dailydata/2016-12-7/11964at: 2016-12-07 23:00:09.517381
