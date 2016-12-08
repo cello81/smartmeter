@@ -17,7 +17,6 @@ class PVController extends Controller
      {
        $em = $this->getDoctrine()->getManager();
        $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
-
        $prevTime = new DateTime($datetoshowfrom);
        $dateTimeEnd = new DateTime($datetoshowto);
 
@@ -78,7 +77,7 @@ class PVController extends Controller
      }
 
      /**
-     * @Route("/pv/{datetoshowfrom}/{datetoshowto}/")
+     * @Route("/pvrange/{datetoshowfrom}/{datetoshowto}/")
      */
 
     public function PVDataAction($datetoshowfrom, $datetoshowto)
@@ -178,7 +177,7 @@ class PVController extends Controller
      }
 
      /**
-     * @Route("/pv/month/{month}")
+     * @Route("/pv/month/{month}", name="_monthselect")
      */
     public function PVMonthAction($month)
     {
@@ -190,13 +189,11 @@ class PVController extends Controller
     }
 
      /**
-     * @Route("/pv/year/{year}")
+     * @Route("/pv/select/{year}", name="_yearselect")
      */
     public function PVYearAction($year)
     {
 	$yeardata = PVController::GetYearData($year);
-
-//	$yeardata = PVController::GetMonthData("2016-11");
         return $this->render(
                 'pv/year.html.twig',
                 array('yeardata' => $yeardata));
@@ -207,7 +204,9 @@ class PVController extends Controller
      */
     public function ShowPVMonth()
     {
-	return PVController::PVMonthAction("2016-11");
+	$today = new DateTime('today');
+	$actualMonth = $today->format("Y-m"); // 2016-11
+	return PVController::PVMonthAction($actualMonth);
     }
 
      /**
@@ -215,7 +214,10 @@ class PVController extends Controller
      */
     public function ShowPVYear()
     {
-	return PVController::PVYearAction("2016");
+echo "ShowPVYear ";
+	$today = new DateTime('today');
+	$actualYear = $today->format("Y"); // 2016
+	return PVController::PVYearAction($actualYear);
     }
 
      /**

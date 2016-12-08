@@ -5,29 +5,77 @@
         <title>{% block title %}Basis für PV Bischof{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+<style>
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
 
+li {
+    float: left;
+}
+
+li a, .dropbtn {
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover, .dropdown:hover .dropbtn {
+{#    background-color: red;#}
+}
+
+li.dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    z-index: 3000;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+</style>
     </head>
     <body>
 	<div id="sidebar">
         {% block sidebar %}
 		<ul id="navigation">
-	            <li>
-        	        <a href="{{ path('_dashboard') }}">Dashboard</a>
-	            </li>
-	            <li>
-	            </li>
-	            <li>
-	            </li>
-        	    <li>
-	                <a href="{{ path('_month') }}">Monatsübersicht</a>
-	            </li>
-	            <li>
-	            </li>
-	            <li>
-	            </li>
-	            <li>
-	                <a href="{{ path('_year') }}">Jahresübersicht</a>
-	            </li>
+			<li><a href="{{ path('_dashboard') }}">Dashboard</a></li>
+		    	<li class="dropdown">
+				<a href="{{path('_month')}}" class="dropbtn">Monatsübersicht</a>
+				<div class="dropdown-content">
+					<a href="{{path('_monthselect',{month:'2016-11'})}}">November 2016</a>
+					<a href="{{path('_monthselect',{month:'2016-10'})}}">Oktober 2016</a>
+				</div>
+			</li>
+		    	<li class="dropdown">
+				<a href="{{path('_year')}}" class="dropbtn">Jahresübersicht</a>
+				<div class="dropdown-content">
+					<a href="{{path('_yearselect',{year:'2016'})}}">2016</a>
+				</div>
+			</li>
 	        </ul>
         {% endblock %}
 	</div>
