@@ -71,7 +71,7 @@ class PVController extends Controller
 //	        $mde->setwattReceive(-1);
 //                $mde->setwattDeliver(-1);
 //	    }
-		$mde->SetJSTimestamp($time->getTimestamp()*1000);
+		$mde->SetJSTimestamp($time->getTimestamp()*1000 + (60*60*1000)); // convert from php to js, add 1 hour
             $prevTime = $time;
         }
         return $meterdataAll;
