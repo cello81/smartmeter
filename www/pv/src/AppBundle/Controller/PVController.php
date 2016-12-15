@@ -214,7 +214,6 @@ class PVController extends Controller
      */
     public function ShowPVYear()
     {
-echo "ShowPVYear ";
 	$today = new DateTime('today');
 	$actualYear = $today->format("Y"); // 2016
 	return PVController::PVYearAction($actualYear);
