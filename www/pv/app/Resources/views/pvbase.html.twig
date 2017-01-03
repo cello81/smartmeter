@@ -66,6 +66,10 @@ li.dropdown {
 		    	<li class="dropdown">
 				<a href="{{path('_month')}}" class="dropbtn">Monatsübersicht</a>
 				<div class="dropdown-content">
+{#					<a href="{{path('_monthselect',{month:'2017-03'})}}">März 2017</a>
+					<a href="{{path('_monthselect',{month:'2017-02'})}}">Februar 2017</a>
+					<a href="{{path('_monthselect',{month:'2017-01'})}}">Januar 2017</a>
+#}					<a href="{{path('_monthselect',{month:'2016-12'})}}">Dezember 2016</a>
 					<a href="{{path('_monthselect',{month:'2016-11'})}}">November 2016</a>
 					<a href="{{path('_monthselect',{month:'2016-10'})}}">Oktober 2016</a>
 				</div>
@@ -73,7 +77,9 @@ li.dropdown {
 		    	<li class="dropdown">
 				<a href="{{path('_year')}}" class="dropbtn">Jahresübersicht</a>
 				<div class="dropdown-content">
-					<a href="{{path('_yearselect',{year:'2016'})}}">2016</a>
+{#					<a href="{{path('_yearselect',{year:'2018'})}}">2018</a>
+					<a href="{{path('_yearselect',{year:'2017'})}}">2017</a>
+#}					<a href="{{path('_yearselect',{year:'2016'})}}">2016</a>
 				</div>
 			</li>
 	        </ul>
