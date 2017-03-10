@@ -32,6 +32,8 @@ class PVController extends Controller
 
 //	$prevReceiveTime = new DateTime($datetoshowfrom);
 	$prevTime = new DateTime($datetoshowfrom);
+	$cumulatedCosts = 0;
+	$counter = 0;
 
         foreach ($meterdataAll as $mde) {
             $netflow = $mde->getNetflow();
@@ -50,6 +52,9 @@ class PVController extends Controller
 	                $mde->setWattReceive($receive);
 	                $mde->setWattDeliver(0);
 			$mde->setWattConsume($mde->GetSitePower()+$receive);
+
+			$cumulatedCosts += $mde->getTariff() / 100;
+
 //			$prevReceiveTime = $receiveTime;
 		}
 		else
@@ -64,6 +69,8 @@ class PVController extends Controller
 			$mde->setWattConsume($mde->GetSitePower()-$deliver);
 //			$prevDeliverTime = $deliverTime;
 		}
+		$mde->setCosts($cumulatedCosts);
+
 //	    }
 //           else
 //           {
@@ -90,6 +97,7 @@ class PVController extends Controller
 	$pvdata['deliver']  = PVController::ShowDeliver();
 	$pvdata['site']     = PVController::ShowSite();
 	$pvdata['receive']  = PVController::ShowReceive();
+//	$pvdata['costs']    = PVController::ShowCosts($datetoshowfrom, $datetoshowto);
 
         return $this->render(
                 'pv/dashboard.html.twig',
@@ -131,6 +139,8 @@ class PVController extends Controller
 
 	foreach($dailyDataAll as $dda)
 	{
+//		$time = $dda->getDate();
+//echo $time->format('Y:m:d H:i:s');
 		$dda->SetVerbrauch($dda->GetBezug() + $dda->GetProduktion() - $dda->GetLieferung());
 	}
 
@@ -222,14 +232,54 @@ class PVController extends Controller
      /**
      * @Route("/show/cost/")
      */
-/*    public function ShowaTodayCost()
+    public function ShowCosts($datetoshowfrom, $datetoshowto)
     {
-	$value = 500;
-        return $this->render(
-                'show/value.html.twig',
-                array('value' => $value));
+
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+
+//       $dailyDataRepo = $em->getRepository('AppBundle:Dailydata');
+
+//       $startTime = new DateTime($month);
+//       $endTime   = clone $startTime;
+//       $endTime->add(new DateInterval('P1M'));  // + 1 Monat
+
+	$today = new DateTime('today');
+	$todayString = $today->format("Y-m-d h:i:s");
+//echo $today->format('Y:m:d H:i:s');
+
+
+       $query = $meterdataRepo->createQueryBuilder('p')
+                ->where('p.measuringtime >= :datefrom')
+                ->andWhere('p.measuringtime < :dateto')
+                ->setParameter('datefrom', $todayString)
+                ->setParameter('dateto', $datetoshowto)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+
+	$dailyCosts = 0;
+        foreach ($meterdataAll as $mde) {
+	        $netflow = $mde->getNetflow();
+
+        	    if ($netflow < -1)
+	            {    // transmit
+//        	        $transmitEnergyHighTariff += 10;
+//                	$transmitPriceHighTariff += $mde->getTariff() / 100;
+;
+		    }
+	            else
+	            {   // receive
+//	                $receiveEnergyHighTariff += 10;
+	                $dailyCosts += $mde->getTariff() / 100; //TODO: wird hier abgerundet?
+		    }
+	}
+
+        return $dailyCosts;
     }
-*/
+
     public function ShowReceive()
     {
        $em = $this->getDoctrine()->getManager();

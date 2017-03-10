@@ -127,6 +127,7 @@
 
 <p>Aktueller Verbrauch: {{ pvdata.consume|number_format(1,'.','') }} Watt<br />
 Aktuelle Produktion:    {{ pvdata.site|number_format(1,'.','') }} Watt<br />
+{#Aufgelaufene Kosten heute: {{ pvdata.costs|number_format(1,'.','') }} Rappen</p>
 {#Aktuelle Lieferung:     {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />
 Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> #}
 
@@ -141,6 +142,7 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> #}
 #}
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
        {% block javascripts %}
                 <script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
@@ -190,7 +192,8 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> #}
                title: {
                    text: 'Leistung [Watt]'
                },
-               min: 0
+               min: 0,
+	       max: 6000
            },
 	   tooltip: {
 		headerFormat: '<b>{series.name}</b><br>',
@@ -227,6 +230,62 @@ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> #}
         }]
     });
 });
+
+
+ $(function () {
+    var values_costs   = [];
+    {% for entry in pvdata.events %}
+        values_costs.push([{{entry.jstimestamp}},{{entry.costs|number_format(1,'.','')}}]);
+    {% endfor %}
+    values_costs.splice(0,1);
+    $('#container2').highcharts({
+           chart: {
+               type: 'spline' ,
+               zoomType: 'x'
+           },
+           title: {
+               text: 'Tagesverlauf'
+           },
+           subtitle: {
+               text: 'Kosten'
+           },
+           xAxis : {
+               type: 'datetime',
+	       dateTimeLabelFormats: {
+		month: '%e. %b',
+		year: '%b'
+	       },
+               title : {
+                   text : 'Uhrzeit'
+               },
+           },
+           yAxis: {
+               title: {
+                   text: 'Kosten [Rappen]'
+               },
+               min: 0
+           },
+	   tooltip: {
+		headerFormat: '<b>{series.name}</b><br>',
+		pointFormat: '{point.x:%H:%M:%S}, {point.y:f} Rappen'
+	   },
+           plotOptions: {
+		spline: {
+			marker: {
+                       enabled: true
+                   }
+               }
+           },
+           series: [{
+	       type: 'areaspline',
+               name: 'Kosten',
+               data: values_costs
+        }]
+    });
+});
+
+
+
 </script>
 
 {% endblock %}

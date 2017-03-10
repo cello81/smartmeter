@@ -49,6 +49,19 @@ class Rawdata
         return $this->jstimestamp;
     }
 
+    private $costs;
+
+    public function getCosts()
+    {
+        return $this->costs;
+    }
+
+    public function setCosts($cost)
+    {
+        $this->costs = $cost;
+	return $this;
+    }
+
     public function getTimediff()
     {
         return $this->timediff;
