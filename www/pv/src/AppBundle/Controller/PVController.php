@@ -20,6 +20,35 @@ class PVController extends Controller
        $prevTime = new DateTime($datetoshowfrom);
        $dateTimeEnd = new DateTime($datetoshowto);
 
+	$midnight = new DateTime('today');
+
+
+       $query = $meterdataRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'ASC')
+                ->where('p.measuringtime > :datefrom')
+                ->andWhere('p.measuringtime < :dateto')
+                ->setParameter('datefrom', $midnight)
+                ->setParameter('dateto', $prevTime)
+                ->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+//	$prevReceiveTime = new DateTime($datetoshowfrom);
+	$cumulatedCosts = 0;
+	$counter = 0;
+
+        foreach ($meterdataAll as $mde) {
+            $netflow = $mde->getNetflow();
+
+		$time = $mde->getMeasuringtime();
+		if( $netflow > 0 )
+		{
+			$cumulatedCosts += $mde->getTariff() / 100;
+		}
+	}
+
+       $dateTimeEnd = new DateTime($datetoshowto);
+
        $query = $meterdataRepo->createQueryBuilder('p')
                 ->orderBy('p.id', 'ASC')
                 ->where('p.measuringtime > :datefrom')
@@ -32,7 +61,7 @@ class PVController extends Controller
 
 //	$prevReceiveTime = new DateTime($datetoshowfrom);
 	$prevTime = new DateTime($datetoshowfrom);
-	$cumulatedCosts = 0;
+//	$cumulatedCosts = 0;
 	$counter = 0;
 
         foreach ($meterdataAll as $mde) {
@@ -77,7 +106,10 @@ class PVController extends Controller
 //	        $mde->setwattReceive(-1);
 //                $mde->setwattDeliver(-1);
 //	    }
-		$mde->SetJSTimestamp($time->getTimestamp()*1000 + (60*60*1000)); // convert from php to js, add 1 hour
+
+// Winter:      $mde->SetJSTimestamp($time->getTimestamp()*1000 + (1*60*60*1000)); // convert from php to js, add 1 hour
+/* Sommer:*/    $mde->SetJSTimestamp($time->getTimestamp()*1000 + (2*60*60*1000)); // convert from php to js, add 2 hours
+
             $prevTime = $time;
         }
         return $meterdataAll;
