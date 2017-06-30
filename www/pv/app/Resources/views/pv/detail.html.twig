@@ -1,0 +1,309 @@
+{# app/Resources/views/pv/detail.html.twig #}
+{% extends 'pvbase.html.twig' %}
+
+{% block title %}Detailed Dashboard{% endblock %}
+
+{% block body %}
+{#
+<script type="text/javascript" >
+ $(function () {
+    $('#container').highcharts({
+
+        chart: {
+            type: 'gauge',
+            plotBackgroundColor: null,
+            plotBackgroundImage: null,
+            plotBorderWidth: 0,
+            plotShadow: false
+        },
+
+        title: {
+            text: 'Speedometer'
+        },
+
+        pane: {
+            startAngle: -150,
+            endAngle: 150,
+            background: [{
+                backgroundColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, '#FFF'],
+                        [1, '#333']
+                    ]
+                },
+                borderWidth: 0,
+                outerRadius: '109%'
+            }, {
+                backgroundColor: {
+                    linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                    stops: [
+                        [0, '#333'],
+                        [1, '#FFF']
+                    ]
+                },
+                borderWidth: 1,
+                outerRadius: '107%'
+            }, {
+                // default background
+            }, {
+                backgroundColor: '#DDD',
+                borderWidth: 0,
+                outerRadius: '105%',
+                innerRadius: '103%'
+            }]
+        },
+
+        // the value axis
+        yAxis: {
+            min: 0,
+            max: 200,
+
+            minorTickInterval: 'auto',
+            minorTickWidth: 1,
+            minorTickLength: 10,
+            minorTickPosition: 'inside',
+            minorTickColor: '#666',
+
+            tickPixelInterval: 30,
+            tickWidth: 2,
+            tickPosition: 'inside',
+            tickLength: 10,
+            tickColor: '#666',
+            labels: {
+                step: 2,
+                rotation: 'auto'
+            },
+            title: {
+                text: 'km/h'
+            },
+            plotBands: [{
+                from: 0,
+                to: 120,
+                color: '#55BF3B' // green
+            }, {
+                from: 120,
+                to: 160,
+                color: '#DDDF0D' // yellow
+            }, {
+                from: 160,
+                to: 200,
+                color: '#DF5353' // red
+            }]
+        },
+
+        series: [{
+            name: 'Verbrauch',
+            data: [{{ pvdata.site|number_format(1,'.','') }}],
+            tooltip: {
+                valueSuffix: ' Watt'
+            }
+        }]
+
+    }#}
+{# ,
+    // Add some life
+    function (chart) {
+        if (!chart.renderer.forExport) {
+            setInterval(function () {
+                var point = chart.series[0].points[0],
+                    newVal,
+                    inc = Math.round((Math.random() - 0.5) * 20);
+
+                newVal = point.y + inc;
+                if (newVal < 0 || newVal > 200) {
+                    newVal = point.y - inc;
+                }
+
+                point.update(newVal);
+
+            }, 3000);
+        }
+    });
+#} {#
+});
+#}
+
+
+<p>Aktueller Verbrauch: {{ pvdata.consume|number_format(1,'.','') }} Watt<br />
+Aktuelle Produktion:    {{ pvdata.site|number_format(1,'.','') }} Watt (Ost: {{pvdata.siteOst|number_format(1,'.','') }} , West: {{pvdata.siteWest|number_format(1,'.','') }})<br />
+{#Aufgelaufene Kosten heute: {{ pvdata.costs|number_format(1,'.','') }} Rappen</p>
+Aktuelle Lieferung:     {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />
+Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> 
+
+{#
+{% for entry in pvdata.events %}
+    Time: {{entry.measuringtime|date('d m Y H:i:s')}}
+    receive {{entry.wattReceive|number_format(1,'.','') }}
+    deliver {{entry.wattDeliver|number_format(1,'.','') }}
+    site    {{entry.sitepower|number_format(1,'.','') }}
+    consume {{entry.wattConsume|number_format(1,'.','') }}<br />
+{% endfor %}
+#}
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+       {% block javascripts %}
+                <script src="{{ absolute_url(asset('http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js')) }}"></script>
+                <script src="{{ absolute_url(asset('https://code.highcharts.com/highcharts.js')) }}"></script>
+                <script src="{{ absolute_url(asset('https://code.highcharts.com/modules/exporting.js')) }}"></script>
+      {% endblock %}
+
+
+<script type="text/javascript" >
+ $(function () {
+    var values_receive = [];
+    var values_deliver = [];
+    var values_site    = [];
+    var values_siteOst = [];
+    var values_siteWest = [];
+    var values_consume = [];
+    {% for entry in pvdata.events %}
+	values_consume.push([{{entry.jstimestamp}},{{entry.wattConsume|number_format(1,'.','')}}]);
+        values_receive.push([{{entry.jstimestamp}},{{entry.wattReceive|number_format(1,'.','')}}]);
+        values_deliver.push([{{entry.jstimestamp}},{{entry.wattDeliver|number_format(1,'.','')}}]);
+        values_site.push([{{entry.jstimestamp}},{{entry.sitepower|number_format(1,'.','')}}]);
+        values_siteOst.push([{{entry.jstimestamp}},{{entry.sitepowerOst|number_format(1,'.','')}}]);
+        values_siteWest.push([{{entry.jstimestamp}},{{entry.sitepowerWest|number_format(1,'.','')}}]);
+    {% endfor %}
+    values_receive.splice(0,1);
+    values_deliver.splice(0,1);
+    values_site.splice(0,1);
+    values_siteOst.splice(0,1);
+    values_siteWest.splice(0,1);
+    values_consume.splice(0,1);
+    $('#container').highcharts({
+           chart: {
+               type: 'spline' ,
+               zoomType: 'x'
+           },
+           title: {
+               text: 'Tagesverlauf'
+           },
+           subtitle: {
+               text: 'Gäbrisstrasse 43a'
+           },
+           xAxis : {
+               type: 'datetime',
+	       dateTimeLabelFormats: {
+		month: '%e. %b',
+		year: '%b'
+	       },
+               title : {
+                   text : 'Uhrzeit'
+               },
+           },
+           yAxis: {
+               title: {
+                   text: 'Leistung [Watt]'
+               },
+               min: 0,
+	       max: 7000
+           },
+	   tooltip: {
+		headerFormat: '<b>{series.name}</b><br>',
+		pointFormat: '{point.x:%H:%M:%S}, {point.y:f} Watt'
+	   },
+           plotOptions: {
+		spline: {
+			marker: {
+                       enabled: true
+                   }
+               }
+           },
+           series: [{
+               name: 'Bezug Netz',
+               data: values_receive, 
+	       color: '#434348',
+               lineWidth: 1,
+               visible: false
+           }, {
+               name: 'Rückspeisung Netz',
+               data: values_deliver,
+	       color: '#7cb5ec',
+               lineWidth: 1,
+               visible: false
+           }, {
+	       type: 'areaspline',
+               name: 'Verbrauch',
+               data: values_consume,
+	       color: '#FFAA00'
+           }, {
+               name: 'Produktion',
+               data: values_site,
+	       color: '#90ed7d'
+           }, {
+               name: 'ProduktionOst',
+               data: values_siteOst,
+	       visible: false,
+{#	       color: '#90ed7d' #}
+           }, {
+               name: 'ProduktionWest',
+               data: values_siteWest,
+	       visible: false,
+{#	       color: '#90ed7d' #}
+           }
+           ]
+    });
+});
+
+
+ $(function () {
+    var values_costs   = [];
+    {% for entry in pvdata.events %}
+        values_costs.push([{{entry.jstimestamp}},{{entry.costs|number_format(1,'.','')}}]);
+    {% endfor %}
+    values_costs.splice(0,1);
+    $('#container2').highcharts({
+           chart: {
+               type: 'spline' ,
+               zoomType: 'x'
+           },
+           title: {
+               text: 'Tagesverlauf'
+           },
+           subtitle: {
+               text: 'Kosten'
+           },
+           xAxis : {
+               type: 'datetime',
+	       dateTimeLabelFormats: {
+		month: '%e. %b',
+		year: '%b'
+	       },
+               title : {
+                   text : 'Uhrzeit'
+               },
+           },
+           yAxis: {
+               title: {
+                   text: 'Kosten [Rappen]'
+               },
+               min: 0
+           },
+	   tooltip: {
+		headerFormat: '<b>{series.name}</b><br>',
+		pointFormat: '{point.x:%H:%M:%S}, {point.y:f} Rappen'
+	   },
+           plotOptions: {
+		spline: {
+			marker: {
+                       enabled: true
+                   }
+               }
+           },
+           series: [{
+	       type: 'areaspline',
+               name: 'Kosten',
+               data: values_costs
+        }]
+    });
+});
+
+
+
+</script>
+
+{% endblock %}
+
