@@ -63,6 +63,7 @@ li.dropdown {
         {% block sidebar %}
 		<ul id="navigation">
 			<li><a href="{{ path('_dashboard') }}">Dashboard</a></li>
+			<li><a href="{{ path('_detaildashboard') }}">Detailed Dashboard</a></li>
 		    	<li class="dropdown">
 				<a href="{{path('_month')}}" class="dropbtn">Monatsübersicht</a>
 				<div class="dropdown-content">
@@ -72,9 +73,9 @@ li.dropdown {
 					<a href="{{path('_monthselect',{month:'2017-08'})}}">August 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-07'})}}">Juli 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-06'})}}">Juni 2017</a>
-					<a href="{{path('_monthselect',{month:'2017-05'})}}">Mai 2017</a>
+#}					<a href="{{path('_monthselect',{month:'2017-05'})}}">Mai 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-04'})}}">April 2017</a>
-#}					<a href="{{path('_monthselect',{month:'2017-03'})}}">März 2017</a>
+					<a href="{{path('_monthselect',{month:'2017-03'})}}">März 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-02'})}}">Februar 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-01'})}}">Januar 2017</a>
 					<a href="{{path('_monthselect',{month:'2016-12'})}}">Dezember 2016</a>
@@ -90,6 +91,13 @@ li.dropdown {
 #}					<a href="{{path('_yearselect',{year:'2016'})}}">2016</a>
 				</div>
 			</li>
+{#		    	<li class="dropdown">
+				<a href="{{path('pv_range')}}" class="dropbtn">Jahresübersicht</a>
+				<div class="dropdown-content">
+					<a href="{{path('_rangeselect',{range:'2017-01-01'})}}">1. Januar 2017</a>
+				</div>
+			</li>
+#}
 	        </ul>
         {% endblock %}
 	</div>

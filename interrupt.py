@@ -26,22 +26,51 @@ def ReadSitePower():
       sitePower = 0
    return sitePower
 
+def ReadSitePowerOst():
+   try:
+      response = FroniusWR.read_holding_registers(40263+41,1,unit=1)
+      sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+   except ConnectionException:
+      sitePower = 0
+   return sitePower
+
+def ReadSitePowerWest():
+   try:
+      response = FroniusWR.read_holding_registers(40263+21,1,unit=1)
+      sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+   except ConnectionException:
+      sitePower = 0
+   return sitePower
+
+
 def TransmitWorker():
 #   print('Prozess ID:', os.getpid())
 #   f.write('Transmit worker: Prozess ID:' + str(os.getpid()) + '\n')
 #   f.write('Recorded at: %s\n'  %datetime.now())
 #   f.flush()
    sitePower = ReadSitePower()
+   sitePowerOst = ReadSitePowerOst()
+   sitePowerWest = ReadSitePowerWest()
    urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
+   urlToSet += "/"
+   urlToSet += str(sitePowerOst)
+   urlToSet += "/"
+   urlToSet += str(sitePowerWest)
    urlToSet += "/-10"
    urllib2.urlopen(urlToSet)
    return 1
 
 def ConsumeWorker():
    sitePower = ReadSitePower()
+   sitePowerOst = ReadSitePowerOst()
+   sitePowerWest = ReadSitePowerWest()
    urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
+   urlToSet += "/"
+   urlToSet += str(sitePowerOst)
+   urlToSet += "/"
+   urlToSet += str(sitePowerWest)
    urlToSet += "/10"
    urllib2.urlopen(urlToSet)
    return 0

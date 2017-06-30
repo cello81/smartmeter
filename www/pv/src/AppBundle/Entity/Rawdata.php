@@ -27,6 +27,16 @@ class Rawdata
      */
     private $sitepower;
 
+   /**
+     * @ORM\Column(type="integer")
+     */
+    private $sitepowerOst;
+
+   /**
+     * @ORM\Column(type="integer")
+     */
+    private $sitepowerWest;
+
     /** 
      * @ORM\Column(type="integer")
      */
@@ -171,7 +181,58 @@ class Rawdata
  	return $this->sitepower;
     }
 
+   /**
+     * Set sitepowerOst
+     *
+     * @param integer $sitepowerOst
+     *
+     * @return Rawdata
+     */
+    public function setSitepowerOst($sitepowerOst)
+    {
+        $this->sitepowerOst = $sitepowerOst;
+
+        return $this;
+    }
+
     /**
+     *
+     * Get sitepowerOSt
+     *
+     * @return integer
+     */
+    public function getSitepowerOst()
+    {
+ 	return $this->sitepowerOst;
+    }
+ 
+   /**
+     * Set sitepowerWest
+     *
+     * @param integer $sitepowerWest
+     *
+     * @return Rawdata
+     */
+    public function setSitepowerWest($sitepowerWest)
+    {
+        $this->sitepowerWest = $sitepowerWest;
+
+        return $this;
+    }
+
+    /**
+     *
+     * Get sitepowerWest
+     *
+     * @return integer
+     */
+    public function getSitepowerWest()
+    {
+ 	return $this->sitepowerWest;
+    }
+
+
+   /**
      * Set Netflow
      *
      * @param integer $netflow

@@ -78,8 +78,8 @@ class PVController extends Controller
 //			$delta = $receiveTime->getTimestamp() - $prevReceiveTime->getTimestamp();
 			$delta = $time->getTimestamp() - $prevTime->getTimestamp();
 	                $receive = $netflow/($delta/3600);
-	                $mde->setWattReceive($receive);
-	                $mde->setWattDeliver(0);
+//	                $mde->setWattReceive($receive);
+//	                $mde->setWattDeliver(0);
 			$mde->setWattConsume($mde->GetSitePower()+$receive);
 
 			$cumulatedCosts += $mde->getTariff() / 100;
@@ -93,8 +93,8 @@ class PVController extends Controller
  			$deltaDeliver = $time->getTimestamp() - $prevTime->getTimestamp();
 // 			$deltaDeliver = $deliverTime->getTimestamp() - $prevDeliverTime->getTimestamp();
 	                $deliver = -1*$netflow/($deltaDeliver/3600);
-	                $mde->setWattDeliver($deliver);
-	                $mde->setWattReceive(0);
+//	                $mde->setWattDeliver($deliver);
+//	                $mde->setWattReceive(0);
 			$mde->setWattConsume($mde->GetSitePower()-$deliver);
 //			$prevDeliverTime = $deliverTime;
 		}
@@ -126,9 +126,12 @@ class PVController extends Controller
 
 	$pvdata['events']   = $events;
 	$pvdata['consume']  = PVController::ShowConsume();
-	$pvdata['deliver']  = PVController::ShowDeliver();
+	$pvdata['deliver']  = 0;//PVController::ShowDeliver();
 	$pvdata['site']     = PVController::ShowSite();
-	$pvdata['receive']  = PVController::ShowReceive();
+//	$pvdata['siteOst']   = PVController::ShowSiteOst();
+//	$pvdata['siteWest']  = PVController::ShowSiteWest();
+//	$pvdata['receive']  = PVController::ShowReceive();
+
 //	$pvdata['costs']    = PVController::ShowCosts($datetoshowfrom, $datetoshowto);
 
         return $this->render(
@@ -380,6 +383,43 @@ class PVController extends Controller
 
         return $value;
     }
+
+    public function ShowSiteOst()
+    {
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(1)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$value = $meterdataAll[0]->GetSitePowerOst();
+
+        return $value;
+    }
+
+    public function ShowSiteWest()
+    {
+       $em = $this->getDoctrine()->getManager();
+       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');
+
+	$query = $meterdataRepo->createQueryBuilder('p')
+    		->select('p')
+		->orderBy('p.id', 'DESC')
+		->setMaxResults(1)
+		->getQuery();
+
+        $meterdataAll = $query->getResult();
+
+	$value = $meterdataAll[0]->GetSitePowerWest();
+
+        return $value;
+    }
+
 
     public function ShowConsume()
     {

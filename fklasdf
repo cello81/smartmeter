@@ -1,0 +1,102 @@
+[1mdiff --git a/www/pv/app/Resources/views/pv/dashboard.html.twig b/www/pv/app/Resources/views/pv/dashboard.html.twig[m
+[1mindex f2634fb..2c14d3f 100644[m
+[1m--- a/www/pv/app/Resources/views/pv/dashboard.html.twig[m
+[1m+++ b/www/pv/app/Resources/views/pv/dashboard.html.twig[m
+[36m@@ -127,6 +127,7 @@[m
+ [m
+ <p>Aktueller Verbrauch: {{ pvdata.consume|number_format(1,'.','') }} Watt<br />[m
+ Aktuelle Produktion:    {{ pvdata.site|number_format(1,'.','') }} Watt<br />[m
+[32m+[m[32mAufgelaufene Kosten heute: {{ pvdata.costs|number_format(1,'.','') }} Rappen</p>[m
+ {#Aktuelle Lieferung:     {{ pvdata.deliver|number_format(1,'.','')}} Watt<br />[m
+ Aktueller Bezug:        {{ pvdata.receive|number_format(1,'.','') }} Watt</p> #}[m
+ [m
+[1mdiff --git a/www/pv/app/Resources/views/pvbase.html.twig b/www/pv/app/Resources/views/pvbase.html.twig[m
+[1mindex 5f44486..2f1186e 100644[m
+[1m--- a/www/pv/app/Resources/views/pvbase.html.twig[m
+[1m+++ b/www/pv/app/Resources/views/pvbase.html.twig[m
+[36m@@ -68,8 +68,8 @@[m [mli.dropdown {[m
+ 				<div class="dropdown-content">[m
+ {#					<a href="{{path('_monthselect',{month:'2017-03'})}}">März 2017</a>[m
+ 					<a href="{{path('_monthselect',{month:'2017-02'})}}">Februar 2017</a>[m
+[31m-					<a href="{{path('_monthselect',{month:'2017-01'})}}">Januar 2017</a>[m
+[31m-#}					<a href="{{path('_monthselect',{month:'2016-12'})}}">Dezember 2016</a>[m
+[32m+[m[32m#}					<a href="{{path('_monthselect',{month:'2017-01'})}}">Januar 2017</a>[m
+[32m+[m					[32m<a href="{{path('_monthselect',{month:'2016-12'})}}">Dezember 2016</a>[m
+ 					<a href="{{path('_monthselect',{month:'2016-11'})}}">November 2016</a>[m
+ 					<a href="{{path('_monthselect',{month:'2016-10'})}}">Oktober 2016</a>[m
+ 				</div>[m
+[1mdiff --git a/www/pv/src/AppBundle/Controller/PVController.php b/www/pv/src/AppBundle/Controller/PVController.php[m
+[1mindex b13579f..550a8c7 100644[m
+[1m--- a/www/pv/src/AppBundle/Controller/PVController.php[m
+[1m+++ b/www/pv/src/AppBundle/Controller/PVController.php[m
+[36m@@ -90,7 +90,8 @@[m [mclass PVController extends Controller[m
+ 	$pvdata['deliver']  = PVController::ShowDeliver();[m
+ 	$pvdata['site']     = PVController::ShowSite();[m
+ 	$pvdata['receive']  = PVController::ShowReceive();[m
+[31m-[m
+[32m+[m	[32m$pvdata['costs']    = PVController::ShowCosts($datetoshowfrom, $datetoshowto);[m
+[32m+[m[41m	[m
+         return $this->render([m
+                 'pv/dashboard.html.twig',[m
+                 array('pvdata' => $pvdata));[m
+[36m@@ -222,14 +223,54 @@[m [mclass PVController extends Controller[m
+      /**[m
+      * @Route("/show/cost/")[m
+      */[m
+[31m-/*    public function ShowaTodayCost()[m
+[32m+[m[32m    public function ShowCosts($datetoshowfrom, $datetoshowto)[m
+     {[m
+[31m-	$value = 500;[m
+[31m-        return $this->render([m
+[31m-                'show/value.html.twig',[m
+[31m-                array('value' => $value));[m
+[32m+[m
+[32m+[m[32m       $em = $this->getDoctrine()->getManager();[m
+[32m+[m[32m       $meterdataRepo = $em->getRepository('AppBundle:Rawdata');[m
+[32m+[m
+[32m+[m
+[32m+[m[32m//       $dailyDataRepo = $em->getRepository('AppBundle:Dailydata');[m
+[32m+[m
+[32m+[m[32m//       $startTime = new DateTime($month);[m
+[32m+[m[32m//       $endTime   = clone $startTime;[m
+[32m+[m[32m//       $endTime->add(new DateInterval('P1M'));  // + 1 Monat[m
+[32m+[m
+[32m+[m	[32m$today = new DateTime('today');[m
+[32m+[m	[32m$todayString = $today->format("Y-m-d h:i:s");[m
+[32m+[m[32mecho $today->format('Y:m:d H:i:s');[m
+[32m+[m
+[32m+[m
+[32m+[m[32m       $query = $meterdataRepo->createQueryBuilder('p')[m
+[32m+[m[32m                ->where('p.measuringtime > :datefrom')[m
+[32m+[m[32m                ->andWhere('p.measuringtime < :dateto')[m
+[32m+[m[32m                ->setParameter('datefrom', $todayString)[m
+[32m+[m[32m                ->setParameter('dateto', $datetoshowto)[m
+[32m+[m[32m                ->getQuery();[m
+[32m+[m
+[32m+[m[32m        $meterdataAll = $query->getResult();[m
+[32m+[m
+[32m+[m
+[32m+[m	[32m$dailyCosts = 0;[m
+[32m+[m[32m        foreach ($meterdataAll as $mde) {[m
+[32m+[m	[32m        $netflow = $mde->getNetflow();[m
+[32m+[m
+[32m+[m[41m        [m	[32m    if ($netflow < -1)[m
+[32m+[m	[32m            {    // transmit[m
+[32m+[m[32m//        	        $transmitEnergyHighTariff += 10;[m
+[32m+[m[32m//                	$transmitPriceHighTariff += $mde->getTariff() / 100;[m
+[32m+[m[32m;[m
+[32m+[m		[32m    }[m
+[32m+[m	[32m            else[m
+[32m+[m	[32m            {   // receive[m
+[32m+[m[32m//	                $receiveEnergyHighTariff += 10;[m
+[32m+[m	[32m                $dailyCosts += $mde->getTariff() / 100;[m
+[32m+[m		[32m    }[m
+[32m+[m	[32m}[m
+[32m+[m
+[32m+[m[32m        return $dailyCosts;[m
+     }[m
+[31m-*/[m
+[32m+[m
+     public function ShowReceive()[m
+     {[m
+        $em = $this->getDoctrine()->getManager();[m
