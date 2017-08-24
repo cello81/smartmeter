@@ -1,7 +1,7 @@
-{# app/Resources/views/pv/year.html.twig #}
+{# app/Resources/views/pv/year2.html.twig #}
 {% extends 'pvbase.html.twig' %}
 
-{% block title %}Jahresübersicht{% endblock %}
+{% block title %}Mehrjahresübersicht{% endblock %}
 
 {% block body %}
 
@@ -16,7 +16,6 @@
 
 <script type="text/javascript" >
  $(function () {
-    var total_Deliver = 0;
     var x_values = [];
     var y_values_receive = [];
     var y_values_deliver = [];
@@ -25,15 +24,17 @@
     var y_values_einnahmen = [];
     var y_values_ausgaben = [];
 
-    {% for entry in yeardata %}
-        var ts = '{{entry.date|date('m')}}';
-        x_values.push(ts);
-        y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} );
-        y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} );
-        y_values_site.push( {{entry.produktion|number_format(1,'.','') }} );
-        y_values_consume.push( {{entry.verbrauch|number_format(1,'.','') }} );
-	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} );
-	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} );
+    {% for entry in multipleyeardata %}
+	{% for row in entry %}
+	        var ts = '{{row.date|date('Y')}}';
+        	x_values.push(ts);
+	        y_values_receive.push( {{row.bezug|number_format(1,'.','') }} / 1000);
+	        y_values_deliver.push( {{row.lieferung|number_format(1,'.','') }} / 1000 );
+	        y_values_site.push( {{row.produktion|number_format(1,'.','') }} / 1000 );
+	        y_values_consume.push( {{row.verbrauch|number_format(1,'.','') }} / 1000 );
+		y_values_einnahmen.push( {{row.einnahmen|number_format(1,'.','') }} / 100 );
+		y_values_ausgaben.push( {{row.ausgaben|number_format(1,'.','') }} / 100 );
+	{% endfor %}
     {% endfor %}
 
 
@@ -43,7 +44,7 @@
                type: 'column',
            },
            title: {
-               text: 'Jahresübersicht Energie'
+               text: 'Mehrjahresübersicht Energie'
            },
            subtitle: {
                text: 'Gäbrisstrasse 43a'
@@ -57,7 +58,7 @@
            },
            yAxis: {
                title: {
-                   text: 'Leistung [WattStunden]'
+                   text: 'Leistung [kWh]'
                },
                min: 0
            },
@@ -94,7 +95,7 @@
                type: 'column',
            },
            title: {
-               text: 'Jahresübersicht Kosten'
+               text: 'Mehrjahresübersicht Kosten'
            },
            subtitle: {
                text: 'Gäbrisstrasse 43a'
@@ -108,7 +109,7 @@
            },
            yAxis: {
                title: {
-                   text: 'Geld [Rappen]'
+                   text: 'Geld [Fr]'
                },
                min: 0
            },

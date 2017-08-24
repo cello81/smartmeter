@@ -265,6 +265,66 @@ class PVController extends Controller
     }
 
      /**
+     * @Route("/pv/years", name="_years")
+     */
+    public function ShowPVMultipleYear()
+    {
+	$today = new DateTime('today');
+	$actualYear = $today->format("Y"); // 2017
+
+	$allYearsData = array();
+
+	for ($year = 2016; $year <= $actualYear; $year++ )
+	{
+        	$yeardata = PVController::GetMultipleYearData($year);
+		$allYearsData[] = $yeardata;
+	}
+
+        return $this->render(
+                'pv/year2.html.twig',
+                array('multipleyeardata' => $allYearsData));
+    }
+
+
+     // returns all data from one year (format of year 2016)
+     public function GetMultipleYearData($year)
+     {
+	$monthlyDataAll = array();
+
+	$yearString = sprintf('%d-%02d', $year, 1); // should create 2017-1
+//	$yearString = sprintf('%d', $year); // should create 2017
+	$dayDataOfMonth = PVController::GetYearData($yearString);
+	$tempData = new DailyData();
+	$tempVerbrauch = 0;
+	$tempBezug = 0;
+	$tempLieferung = 0;
+	$tempProduktion = 0;
+	$tempEinnahmen = 0;
+	$tempAusgaben = 0;
+	foreach ($dayDataOfMonth as $ddom)
+	{
+		$tempVerbrauch += $ddom->GetVerbrauch();
+		$tempBezug += $ddom->GetBezug();
+		$tempLieferung += $ddom->GetLieferung();
+		$tempProduktion += $ddom->GetProduktion();
+		$tempEinnahmen += $ddom->GetEinnahmen();
+		$tempAusgaben += $ddom->GetAusgaben();
+	}
+	$tempData->SetVerbrauch($tempVerbrauch);
+	$tempData->SetBezug($tempBezug);
+	$tempData->SetLieferung($tempLieferung);
+	$tempData->SetProduktion($tempProduktion);
+	$tempData->SetEinnahmen($tempEinnahmen);
+	$tempData->SetAusgaben($tempAusgaben);
+
+	$tempData->SetDate($yearString);
+
+	$monthlyDataAll[]=$tempData;
+
+        return $monthlyDataAll;
+     }
+
+     /**
      * @Route("/show/cost/")
      */
     public function ShowCosts($datetoshowfrom, $datetoshowto)
