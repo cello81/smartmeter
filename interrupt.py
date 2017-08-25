@@ -29,7 +29,12 @@ def ReadSitePower():
 def ReadSitePowerOst():
    try:
       response = FroniusWR.read_holding_registers(40263+41,1,unit=1)
-      sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+      responseFactor = FroniusWR.read_holding_registers(40263+4,1,unit=1)
+      if responseFactor == 65534:
+	  sitePower = response.registers[0] / 100 # this only interprets one uint16... (65kW, should be enough)
+      else:
+          sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+
    except ConnectionException:
       sitePower = 0
    return sitePower
@@ -37,7 +42,11 @@ def ReadSitePowerOst():
 def ReadSitePowerWest():
    try:
       response = FroniusWR.read_holding_registers(40263+21,1,unit=1)
-      sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+      responseFactor = FroniusWR.read_holding_registers(40263+4,1,unit=1)
+      if responseFactor == 65534:
+          sitePower = response.registers[0] / 100 # this only interprets one uint16... (65kW, should be enough)
+      else:
+          sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
    except ConnectionException:
       sitePower = 0
    return sitePower
