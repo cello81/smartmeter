@@ -27,12 +27,12 @@
     {% for entry in monthdata %}
         var ts = '{{entry.date|date('d m Y')}}';
         x_values.push(ts);
-        y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} );
-        y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} );
-        y_values_site.push( {{entry.produktion|number_format(1,'.','') }} );
-        y_values_consume.push( {{entry.verbrauch|number_format(1,'.','') }} );
-	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} );
-	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} );
+        y_values_receive.push( {{entry.bezug|number_format(1,'.','') }} / 1000 );
+        y_values_deliver.push( {{entry.lieferung|number_format(1,'.','') }} / 1000 );
+        y_values_site.push( {{entry.produktion|number_format(1,'.','') }} / 1000 );
+        y_values_consume.push( {{entry.verbrauch|number_format(1,'.','') }} / 1000 );
+	y_values_einnahmen.push( {{entry.einnahmen|number_format(1,'.','') }} / 100 );
+	y_values_ausgaben.push( {{entry.ausgaben|number_format(1,'.','') }} / 100);
     {% endfor %}
 
     $('#EnergyContainer').highcharts({
@@ -55,7 +55,7 @@
            },
            yAxis: {
                title: {
-                   text: 'Leistung [WattStunden]'
+                   text: 'Leistung [kWh]'
                },
                min: 0
            },
@@ -106,7 +106,7 @@
            },
            yAxis: {
                title: {
-                   text: 'Geld [Rappen]'
+                   text: 'Geld [Fr]'
                },
                min: 0
            },
