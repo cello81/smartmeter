@@ -9,9 +9,40 @@ use AppBundle\Entity\Rawdata;
 use AppBundle\Entity\Dailydata;
 use DateTime;
 use DateInterval;
+use curl;
 
 class InsertController extends Controller
 {
+
+     /**
+     * @Route("/power/ein")
+     
+	public function powerActionEin()
+	{
+		return InsertController::powerAction("on");
+	}
+*/
+
+     /**
+     * @Route("/power/{onoff}")
+     */
+	public function powerAction($onoff)
+	{
+                $url = "https://api.particle.io/v1/devices/53ff6d066667574846572567/power";
+
+		$ch = curl_init($url);
+		curl_setopt( $ch, CURLOPT_POST, 1);
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt( $ch, CURLOPT_HEADER, 0);
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query(array('arg' => $onoff)));
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer b44cc030df607284a533a339d9d59f7e209c7fda'));
+		$response = curl_exec( $ch );
+	        return new Response(
+        		'<html><body>'.$response.'</body></html>' );
+	}
+ 
+
     /** 
     * @Route("/update/dailydata/{date}")
     */
@@ -126,6 +157,7 @@ class InsertController extends Controller
             '<html><body>Save successful!</body></html>' );
      }
 
+
      /**
      * @Route("/insert/meterdata/{sitepower}/{netflow}")
      */
@@ -140,8 +172,11 @@ class InsertController extends Controller
 
 	if ($netflow < 0 ) // Rücklieferung
 	{
-	    $lowTariffDeliver = 5.9;
-	    $highTariffDeliver = 5.9;
+//            $session->set('name', 'Drak');
+	    $lowTariffDeliver = 5.45;  // 2017
+	    $highTariffDeliver = 5.45; // 2017
+//	    $lowTariffDeliver = 4.23;  // 2018
+//	    $highTariffDeliver = 4.23; // 2018
 	    $weekday = $actualTime->format("N");
 	    if ($weekday == 6 || $weekday == 7)
 	       $tariff = $lowTariffDeliver;
@@ -156,6 +191,7 @@ class InsertController extends Controller
 	}
 	else
 	{
+            InsertController::powerAction("off");
 	    $lowTariff = 13;
 	    $highTariff = 21;
 	    $weekday = $actualTime->format("N");
@@ -197,6 +233,8 @@ class InsertController extends Controller
 
 	if ($netflow < 0 ) // Rücklieferung
 	{
+            InsertController::powerAction("on");
+
 	    $lowTariffDeliver = 5.9;
 	    $highTariffDeliver = 5.9;
 	    $weekday = $actualTime->format("N");
@@ -213,6 +251,8 @@ class InsertController extends Controller
 	}
 	else
 	{
+            InsertController::powerAction("off");
+
 	    $lowTariff = 13;
 	    $highTariff = 21;
 	    $weekday = $actualTime->format("N");

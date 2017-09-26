@@ -32,8 +32,10 @@ def ReadSitePowerOst():
       responseFactor = FroniusWR.read_holding_registers(40263+4,1,unit=1)
       readValueFactor = responseFactor.registers[0]
 
-      if readValueFactor == 65534:
+      if readValueFactor == 0xFFFE:  # 65534
 	  sitePower = response.registers[0] / 100 # this only interprets one uint16... (65kW, should be enough)
+      elif readValueFactor == 0x8000: # 32768
+          sitePower = 0
       else:
           sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
 
@@ -47,10 +49,13 @@ def ReadSitePowerWest():
       responseFactor = FroniusWR.read_holding_registers(40263+4,1,unit=1)
       readValueFactor = responseFactor.registers[0]
 
-      if readValueFactor == 65534:
-          sitePower = response.registers[0] / 100 # this only interprets one uint16... (65kW, should be enough)
+      if readValueFactor == 0xFFFE:  # 65534
+	  sitePower = response.registers[0] / 100 # this only interprets one uint16... (65kW, should be enough)
+      elif readValueFactor == 0x8000: # 32768
+          sitePower = 0
       else:
           sitePower = response.registers[0] / 10 # this only interprets one uint16... (65kW, should be enough)
+
    except ConnectionException:
       sitePower = 0
    return sitePower
@@ -64,6 +69,7 @@ def TransmitWorker():
    sitePower = ReadSitePower()
    sitePowerOst = ReadSitePowerOst()
    sitePowerWest = ReadSitePowerWest()
+
    urlToSet = "http://localhost/pv/web/app.php/insert/meterdata/"
    urlToSet += str(sitePower)
    urlToSet += "/"
