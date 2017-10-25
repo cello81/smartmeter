@@ -7,39 +7,237 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Entity\Rawdata;
 use AppBundle\Entity\Dailydata;
+use AppBundle\Entity\Plugdata;
 use DateTime;
 use DateInterval;
 use curl;
+
+use Symfony\Component\HttpFoundation\Session\Session;
+
 
 class InsertController extends Controller
 {
 
      /**
-     * @Route("/power/ein")
-     
-	public function powerActionEin()
+     * @Route("/power/spark/{online}")
+     */
+	public function powerActionSpark($online)
 	{
-		return InsertController::powerAction("on");
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
+
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+		$plugdata = $plugDataAll[0];
+		$plugdata->setSparkOnline($online);
+
+		if ($online == "1")
+		{
+			$plugdata->setState("off");
+			$plugdata->setCounter(1);
+		}
+
+		$em->persist($plugdata);
+		$em->flush();
+
+        	return new Response(
+	            '<html><body>Spark status set successful!</body></html>' );
+
 	}
-*/
+
+     /**
+     * @Route("/power/limit/{limit}")
+     */
+	public function powerActionLimit($limit)
+	{
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
+
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+		$plugdata = $plugDataAll[0];
+		$plugdata->setPowerLimit($limit);
+
+		// tells Doctrine you want to (eventually) save the Product (no queries yet)
+		$em->persist($plugdata);
+
+		// actually executes the queries (i.e. the INSERT query)
+		$em->flush();
+
+        	return new Response(
+	            '<html><body>Set limit to '.$limit.'!</body></html>' );
+
+	}
+
+     /**
+     * @Route("/power/init/session")
+     */
+	public function powerActionInit()
+	{
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
+
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+		$plugdata = $plugDataAll[0];
+		$plugdata->setCounter(1);
+		$plugdata->setState("off");
+		$plugdata->setSparkOnline("0");
+
+		// tells Doctrine you want to (eventually) save the Product (no queries yet)
+		$em->persist($plugdata);
+
+		// actually executes the queries (i.e. the INSERT query)
+		$em->flush();
+
+        	return new Response(
+	            '<html><body>Init successful!</body></html>' );
+	}
+
+     /**
+     * @Route("/power/get")
+     */
+	public function powerActionGet()
+	{
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
+
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+	        $counter = $plugDataAll[0]->getCounter();
+	        $state = $plugDataAll[0]->getState();
+	        $limit = $plugDataAll[0]->getPowerLimit();
+	        $online = $plugDataAll[0]->getSparkOnline();
+
+		$deliver = PVController::ShowDeliver();
+
+	        return new Response(
+        		'<html><body>counter: '.$counter.', state: '.$state.', limit: '.$limit.', spark online: '.$online.', deliver: '.$deliver.'</body></html>' );
+	}
+
+     /**
+     * @Route("/power/test/{param}")
+     */
+	public function powerActionTest($param)
+	{
+		if ($param == "on" )
+			return InsertController::powerAction("on");
+		if ($param == "off" )
+		{
+			return InsertController::powerAction("off");
+		}
+	        return new Response(
+        		'<html><body></body></html>' );
+
+	}
+
 
      /**
      * @Route("/power/{onoff}")
      */
 	public function powerAction($onoff)
 	{
-                $url = "https://api.particle.io/v1/devices/53ff6d066667574846572567/power";
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
 
-		$ch = curl_init($url);
-		curl_setopt( $ch, CURLOPT_POST, 1);
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt( $ch, CURLOPT_HEADER, 0);
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query(array('arg' => $onoff)));
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer b44cc030df607284a533a339d9d59f7e209c7fda'));
-		$response = curl_exec( $ch );
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+	        $counter = $plugDataAll[0]->getCounter();
+	        $state = $plugDataAll[0]->getState();
+		$sparkOnline = $plugDataAll[0]->getSparkOnline();
+		$limit = $plugDataAll[0]->getPowerLimit();
+
+		$callSpark = 0;
+
+		if ($onoff == "off")
+		{
+			$counter = 0;
+			if ($state == "on")
+			{
+				$callSpark = 1;
+				$state = "off";
+			}
+		} else
+		{
+			if ($state == "off")
+			{
+				$deliver = PVController::ShowDeliver();
+
+				if ($deliver > $limit )
+				{
+					$counter = $counter + 1;
+
+					if($counter >= 10 )
+					{
+						$state = "on";
+						$counter = 0;
+						$callSpark = 1;
+					}
+				}
+			} else
+			{
+			}
+		}
+
+		$em = $this->getDoctrine()->getManager();
+		$plugdata = $plugDataAll[0];
+
+		$plugdata->setCounter($counter);
+		$plugdata->setState($state);
+
+		// tells Doctrine you want to (eventually) save the Product (no queries yet)
+		$em->persist($plugdata);
+
+		// actually executes the queries (i.e. the INSERT query)
+		$em->flush();
+
+		$response = "No function called";
+		if ($callSpark == 1 && $sparkOnline == "1")
+		{
+	                $url = "https://api.particle.io/v1/devices/53ff6d066667574846572567/power";
+
+			$ch = curl_init($url);
+			curl_setopt( $ch, CURLOPT_POST, 1);
+			curl_setopt( $ch, CURLOPT_TIMEOUT, 5);
+			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt( $ch, CURLOPT_HEADER, 0);
+			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query(array('arg' => $onoff)));
+			curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer b44cc030df607284a533a339d9d59f7e209c7fda'));
+			$response = curl_exec( $ch );
+		}
 	        return new Response(
-        		'<html><body>'.$response.'</body></html>' );
+        		'<html><body>counter: '.$counter.', state: '.$state.', antwort von sparkli: '.$response.'</body></html>' );
 	}
  
 
@@ -233,10 +431,12 @@ class InsertController extends Controller
 
 	if ($netflow < 0 ) // Rücklieferung
 	{
-            InsertController::powerAction("on");
+//            InsertController::powerAction("on");
+	    $lowTariffDeliver = 5.45;  // 2017
+	    $highTariffDeliver = 5.45; // 2017
+//	    $lowTariffDeliver = 4.23;  // 2018
+//	    $highTariffDeliver = 4.23; // 2018
 
-	    $lowTariffDeliver = 5.9;
-	    $highTariffDeliver = 5.9;
 	    $weekday = $actualTime->format("N");
 	    if ($weekday == 6 || $weekday == 7)
 	       $tariff = $lowTariffDeliver;
@@ -251,7 +451,6 @@ class InsertController extends Controller
 	}
 	else
 	{
-            InsertController::powerAction("off");
 
 	    $lowTariff = 13;
 	    $highTariff = 21;
@@ -272,6 +471,14 @@ class InsertController extends Controller
 	$em = $this->getDoctrine()->getManager();
 	$em->persist($rawdata);
 	$em->flush();
+
+	if ( $netflow < 0 ) // Rücklieferung
+	{
+		InsertController::powerAction("on");
+	} else
+	{
+		InsertController::powerAction("off");
+	}
 
         return new Response(
             '<html><body>Saved entry with the following values: Measuring Time: '.$time.', Site Power: '.$sitepower.', Netz: '.$netflow.', Tarif: '.$tariff.'</body></html>'

@@ -22,13 +22,36 @@ while 1:
    responseWest = FroniusWR.read_holding_registers(40263+21,1,unit=1)
    readValueWest = responseWest.registers[0] / 100
 
-   print("Model:    ", readValueModel)
-   print("Factor:   ", readValueFactor)
-   print("Ost:      ", readValueOst)
-   print("West:     ", readValueWest)
-   print("Zusammen: ", readValueOst + readValueWest)
-   print("Total:    ", readValueTotal)
-   print("")
+#   print("Model:    ", readValueModel)
+#   print("Factor:   ", readValueFactor)
+#   print("Ost:      ", readValueOst)
+#   print("West:     ", readValueWest)
+#   print("Zusammen: ", readValueOst + readValueWest)
+#   print("Total:    ", readValueTotal)
+#   print("")
+
+   if readValueOst == 655:
+      print("readValueOst", readValueOst)
+      print("readValueFactor", readValueFactor)
+
+   if readValueWest == 655:
+      print("readValueWest", readValueWest)
+      print("readValueFactor", readValueFactor)
+
+   if readValueFactor == 0xFFFE:  # 65534
+       sitePower = responseOst.registers[0] / 100 # this only interprets one uin$
+   elif readValueFactor == 0x8000: # 32768
+       sitePower = 0
+   else:
+       sitePower = responseOst.registers[0] / 10 # this only interprets one uint$
+
+
+
+#   if readValueFactor == 0x8000:
+#       print("readValueOst: ", readValueOst)
+#   elif readValue
+#       print("readValueWest: ", readValueWest)
+
 
    time.sleep(1)
 

@@ -113,10 +113,15 @@ if __name__ == '__main__':
 #    f.write('main: Prozess ID:' + str(os.getpid()) + '\n')
 #    f.write('Recorded at: %s\n'  %datetime.now())
 #    f.flush()
-    
+
     GPIO.add_event_detect(3 , GPIO.FALLING, callback=greenTransmitEnergy, bouncetime=1000)
     GPIO.add_event_detect(15, GPIO.FALLING, callback=yellowConsumeEnergy, bouncetime=1000)
     # bounce time 50ms ended in several failures...
+
+#initialize session variables:
+    urlToSet = "http://localhost/pv/web/app.php/power/init/session"
+    urllib2.urlopen(urlToSet)
+
 try:
 #   print('Prozess ID:', os.getpid())
    if len(sys.argv) == 1:
