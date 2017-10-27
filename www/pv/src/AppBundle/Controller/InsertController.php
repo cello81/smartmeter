@@ -19,7 +19,7 @@ class InsertController extends Controller
 {
 
      /**
-     * @Route("/power/spark/{online}")
+     * @Route("/power/spark/{online}", name="_sparkonline")
      */
 	public function powerActionSpark($online)
 	{
@@ -46,13 +46,11 @@ class InsertController extends Controller
 		$em->persist($plugdata);
 		$em->flush();
 
-        	return new Response(
-	            '<html><body>Spark status set successful!</body></html>' );
-
+		return InsertController::powerActionGet();
 	}
 
      /**
-     * @Route("/power/limit/{limit}")
+     * @Route("/power/limit/{limit}", name="_limit")
      */
 	public function powerActionLimit($limit)
 	{
@@ -76,9 +74,7 @@ class InsertController extends Controller
 		// actually executes the queries (i.e. the INSERT query)
 		$em->flush();
 
-        	return new Response(
-	            '<html><body>Set limit to '.$limit.'!</body></html>' );
-
+		return InsertController::powerActionGet();
 	}
 
      /**
@@ -113,7 +109,7 @@ class InsertController extends Controller
 	}
 
      /**
-     * @Route("/power/get")
+     * @Route("/power/get", name="_powerget")
      */
 	public function powerActionGet()
 	{
@@ -135,8 +131,16 @@ class InsertController extends Controller
 
 		$deliver = PVController::ShowDeliver();
 
-	        return new Response(
-        		'<html><body>counter: '.$counter.', state: '.$state.', limit: '.$limit.', spark online: '.$online.', deliver: '.$deliver.'</body></html>' );
+
+	        $plugdata = array();
+	        $plugdata['counter'] = $counter;
+	        $plugdata['state'] = $state;
+	        $plugdata['powerLimit'] = $limit;
+	        $plugdata['sparkOnline'] = $online;
+
+	        return $this->render(
+        	        'pv/plug.html.twig',
+                	array('plugdata' => $plugdata));
 	}
 
      /**
@@ -209,7 +213,7 @@ class InsertController extends Controller
 			}
 		}
 
-		$em = $this->getDoctrine()->getManager();
+//		$em = $this->getDoctrine()->getManager();
 		$plugdata = $plugDataAll[0];
 
 		$plugdata->setCounter($counter);
@@ -224,22 +228,58 @@ class InsertController extends Controller
 		$response = "No function called";
 		if ($callSpark == 1 && $sparkOnline == "1")
 		{
-	                $url = "https://api.particle.io/v1/devices/53ff6d066667574846572567/power";
-
-			$ch = curl_init($url);
-			curl_setopt( $ch, CURLOPT_POST, 1);
-			curl_setopt( $ch, CURLOPT_TIMEOUT, 5);
-			curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-			curl_setopt( $ch, CURLOPT_HEADER, 0);
-			curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query(array('arg' => $onoff)));
-			curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer b44cc030df607284a533a339d9d59f7e209c7fda'));
-			$response = curl_exec( $ch );
+			InsertController::callSpark($onoff);
 		}
 	        return new Response(
         		'<html><body>counter: '.$counter.', state: '.$state.', antwort von sparkli: '.$response.'</body></html>' );
 	}
  
+
+	/**
+	* @Route("powerSwitch/{powerSwitch}", name="_powerSwitch")
+	*/
+	public function powerSwitch($powerSwitch)
+	{
+
+		$em = $this->getDoctrine()->getManager();
+		$plugRepo = $em->getRepository('AppBundle:Plugdata');
+
+		$query = $plugRepo->createQueryBuilder('p')
+                ->select('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery();
+
+	        $plugDataAll = $query->getResult();
+
+		$plugdata = $plugDataAll[0];
+		$plugdata->setState($powerSwitch);
+
+		// tells Doctrine you want to (eventually) save the Product (no queries yet)
+		$em->persist($plugdata);
+
+		// actually executes the queries (i.e. the INSERT query)
+		$em->flush();
+
+		InsertController::callSpark($powerSwitch);
+
+		return InsertController::powerActionGet();
+	}
+
+	public function callSpark($powerSwitch)
+	{
+		$url = "https://api.particle.io/v1/devices/53ff6d066667574846572567/power";
+
+		$ch = curl_init($url);
+		curl_setopt( $ch, CURLOPT_POST, 1);
+		curl_setopt( $ch, CURLOPT_TIMEOUT, 5);
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt( $ch, CURLOPT_HEADER, 0);
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query(array('arg' => $powerSwitch)));
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer b44cc030df607284a533a339d9d59f7e209c7fda'));
+		$response = curl_exec( $ch );
+	}
 
     /** 
     * @Route("/update/dailydata/{date}")

@@ -68,8 +68,8 @@ li.dropdown {
 				<a href="{{path('_month')}}" class="dropbtn">Monatsübersicht</a>
 				<div class="dropdown-content">
 {#				<a href="{{path('_monthselect',{month:'2017-11'})}}">November 2017</a>
-					<a href="{{path('_monthselect',{month:'2017-10'})}}">Oktober 2017</a>
-#}					<a href="{{path('_monthselect',{month:'2017-09'})}}">September 2017</a>
+#}					<a href="{{path('_monthselect',{month:'2017-10'})}}">Oktober 2017</a>
+					<a href="{{path('_monthselect',{month:'2017-09'})}}">September 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-08'})}}">August 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-07'})}}">Juli 2017</a>
 					<a href="{{path('_monthselect',{month:'2017-06'})}}">Juni 2017</a>
@@ -99,6 +99,7 @@ li.dropdown {
 			</li>
 #}
 			<li><a href="{{ path('_years') }}">Mehrjahresübersicht</a></li>
+			<li><a href="{{ path('_powerget') }}">Steckdose Info</a></li>
 	        </ul>
         {% endblock %}
 	</div>
